@@ -16,3 +16,17 @@ class ReadFile:
         full_path = os.path.join(self.corpus_path, file_name)
         df = pd.read_parquet(full_path, engine="pyarrow")
         return df.values.tolist()
+
+
+# iter for read from document
+    def __iter__(self):
+        self.file_list = [file for file in os.listdir(self.corpus_path) if file.endswith(".parquet")]
+        self.n = 0
+        return self
+
+    def __next__(self):
+        if self.n >= len(self.file_list):
+            raise StopIteration
+        else:
+            self.n += 1
+            return self.read_file(self.file_list[self.n - 1])

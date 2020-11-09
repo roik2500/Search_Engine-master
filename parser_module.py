@@ -1,11 +1,24 @@
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from document import Document
+from re import findall
 
 
 class Parse:
     def __init__(self):
         self.stop_words = stopwords.words('english')
+
+# #stayAtHome--->['#stayAtHome', 'stay', 'At',Home]
+    def hastag(self, term):
+        res = [term]
+        if (term[0] == '#'):
+            start = 1
+            for i in range(2,len(term)):
+                if term[i].isupper():
+                    res.append(term[start:i])
+                    start=i
+            res.append(term[start:])
+        return res
 
     def parse_sentence(self, text):
         """
@@ -14,7 +27,9 @@ class Parse:
         :return:
         """
         text_tokens = word_tokenize(text)
+        print(text_tokens)
         text_tokens_without_stopwords = [w.lower() for w in text_tokens if w not in self.stop_words]
+        #self.hastag('#stayAtHomeTonighRoi')
         return text_tokens_without_stopwords
 
     def parse_doc(self, doc_as_list):
