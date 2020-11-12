@@ -5,7 +5,7 @@ from document import Document
 from Term import Term
 from nltk.stem import PorterStemmer
 from stemmer import Stemmer
-
+import re
 
 class Parse:
     def __init__(self):
@@ -68,6 +68,13 @@ class Parse:
                     start = i
             res.append(term[start:])
         return res
+
+    def URL(self,text):
+        if text[0:5] == "https":
+            return [v for v in re.split('[://]|[/?]|[/]|[=]',text) if v]
+        else : return [text]
+
+
 
     # @roi
     def tag(self, text):
