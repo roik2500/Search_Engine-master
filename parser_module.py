@@ -1,16 +1,30 @@
 from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
 from document import Document
-from re import findall
-
+from Term import Term
+from nltk.stem import PorterStemmer
+from stemmer import Stemmer
 
 class Parse:
     def __init__(self):
         self.stop_words = stopwords.words('english')
+        self.word_dict = {}
+        self.stemmer = Stemmer()
 
     # Build a tokenize---> split by spaces
     def Tokenize(self, text):
-        return text.split(' ')
+        word_list = [self.stemmer.stem_term(word) for word in text.split(' ')]
+        # return [self.add_to_dict(word) for word in word_list]
+        return word_list
+
+    def add_to_dict(self, word):
+        low_case = word.lower()
+        if low_case in self.word_dict.keys():
+            if word == low_case:
+                self.word_dict[low_case].text = low_case
+
+        else:
+            self.word_dict[low_case] = Term(word)
+        return self.word_dict[low_case]
 
     # #stayAtHome--->['#stayAtHome', 'stay', 'At',Home]
     def hastag(self, term):
@@ -45,13 +59,12 @@ class Parse:
         :param text:
         :return:
         """
-        #text_tokens = word_tokenize(text)
         text_tokens = self.Tokenize(text)
 
         print(text_tokens)
        # text_tokens_without_stopwords = [w.lower() for w in text_tokens if w not in self.stop_words]
 
-        text_tokens_without_stopwords = [w for w in text_tokens if w not in self.stop_words]
+        text_tokens_without_stopwords = [self.stemmer.stem_term(w) for w in text_tokens if w not in self.stop_words]
         print(text_tokens_without_stopwords)
         # self.hastag('#stayAtHomeTonighRoi')
         return text_tokens_without_stopwords

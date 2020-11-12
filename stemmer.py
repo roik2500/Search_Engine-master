@@ -1,9 +1,8 @@
-from nltk.stem import snowball
-
+from nltk.stem.porter import PorterStemmer
 
 class Stemmer:
     def __init__(self):
-        self.stemmer = snowball.SnowballStemmer("english")
+        self.stemmer = PorterStemmer()
 
     def stem_term(self, token):
         """
@@ -11,4 +10,11 @@ class Stemmer:
         :param token: string of a token
         :return: stemmed token
         """
-        return self.stemmer.stem(token)
+        word = str(token)
+        if word.title():
+            self.stemmer.stem(word).capitalize()
+        elif word.isupper():
+            self.stemmer.stem(word).upper()
+        else:
+            self.stemmer.stem(word)
+        return word

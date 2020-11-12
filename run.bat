@@ -1,4 +1,4 @@
-set python_path= "C:\Users\roik2\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Python 3.7\python.exe"
+set python_path= "C:\Users\shaul\AppData\Local\Programs\Python\Python37\python.exe"
 
 %python_path% -m pip install virtualenv
 %python_path% -m venv venv
