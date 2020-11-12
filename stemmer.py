@@ -11,10 +11,10 @@ class Stemmer:
         :return: stemmed token
         """
         word = str(token)
-        if word.title():
-            self.stemmer.stem(word).capitalize()
+        if word == word.title():
+            word = self.stemmer.stem(word).capitalize()
         elif word.isupper():
-            self.stemmer.stem(word).upper()
+            word = self.stemmer.stem(word).upper()
         else:
-            self.stemmer.stem(word)
+            word = self.stemmer.stem(word)
         return word
