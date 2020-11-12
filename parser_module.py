@@ -8,17 +8,36 @@ class Parse:
     def __init__(self):
         self.stop_words = stopwords.words('english')
 
-# #stayAtHome--->['#stayAtHome', 'stay', 'At',Home]
+    # Build a tokenize---> split by spaces
+    def Tokenize(self, text):
+        return text.split(' ')
+
+    # #stayAtHome--->['#stayAtHome', 'stay', 'At',Home]
     def hastag(self, term):
         res = [term]
-        if (term[0] == '#'):
+        if term[0] == '#':
             start = 1
-            for i in range(2,len(term)):
+            for i in range(2, len(term)):
                 if term[i].isupper():
                     res.append(term[start:i])
-                    start=i
+                    start = i
             res.append(term[start:])
         return res
+
+    # @roi
+    def tag(self, text):
+        res = []
+        start = 0
+        for i in range(len(text)):
+            if text[i] == '@':
+                start = i
+            if text[i] == ' ' and start != 0:
+                if text[i - 1] == ':':
+                    res.append(text[start:i - 1])
+                else:
+                    res.append(text[start:i + 1])
+                break
+        print(res)
 
     def parse_sentence(self, text):
         """
@@ -26,10 +45,15 @@ class Parse:
         :param text:
         :return:
         """
-        text_tokens = word_tokenize(text)
+        #text_tokens = word_tokenize(text)
+        text_tokens = self.Tokenize(text)
+
         print(text_tokens)
-        text_tokens_without_stopwords = [w.lower() for w in text_tokens if w not in self.stop_words]
-        #self.hastag('#stayAtHomeTonighRoi')
+       # text_tokens_without_stopwords = [w.lower() for w in text_tokens if w not in self.stop_words]
+
+        text_tokens_without_stopwords = [w for w in text_tokens if w not in self.stop_words]
+        print(text_tokens_without_stopwords)
+        # self.hastag('#stayAtHomeTonighRoi')
         return text_tokens_without_stopwords
 
     def parse_doc(self, doc_as_list):
@@ -51,12 +75,12 @@ class Parse:
 
         doc_length = len(tokenized_text)  # after text operations.
 
-        for term in tokenized_text:
+        for term in tokenized_text:  # tf
             if term not in term_dict.keys():
                 term_dict[term] = 1
             else:
                 term_dict[term] += 1
-
+        print(self.tag(full_text))
         document = Document(tweet_id, tweet_date, full_text, url, retweet_text, retweet_url, quote_text,
                             quote_url, term_dict, doc_length)
         return document
