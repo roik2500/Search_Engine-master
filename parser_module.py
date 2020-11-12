@@ -12,7 +12,7 @@ class Parse:
 
     # Build a tokenize---> split by spaces
     def Tokenize(self, text):
-        word_list = [self.stemmer.stem_term(word) for word in text.split(' ')]
+        word_list = [self.stemmer.stem_term(word) for word in text.split(' ') if word not in self.stop_words]
         # return [self.add_to_dict(word) for word in word_list]
         return word_list
 
@@ -62,12 +62,8 @@ class Parse:
         text_tokens = self.Tokenize(text)
 
         print(text_tokens)
-       # text_tokens_without_stopwords = [w.lower() for w in text_tokens if w not in self.stop_words]
-
-        text_tokens_without_stopwords = [self.stemmer.stem_term(w) for w in text_tokens if w not in self.stop_words]
-        print(text_tokens_without_stopwords)
         # self.hastag('#stayAtHomeTonighRoi')
-        return text_tokens_without_stopwords
+        return text_tokens
 
     def parse_doc(self, doc_as_list):
         """
