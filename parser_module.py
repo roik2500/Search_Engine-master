@@ -1,5 +1,5 @@
 import math
-
+import string
 from nltk.corpus import stopwords
 from document import Document
 from Term import Term
@@ -9,7 +9,7 @@ import re
 
 class Parse:
     def __init__(self):
-        self.stop_words = stopwords.words('english')
+        self.stop_words = stopwords.words('english')  # TODO: get words from local file
         self.word_dict = {}
         self.stemmer = Stemmer()
 
@@ -18,7 +18,10 @@ class Parse:
         multiplier = 10 ** decimals
         return math.floor(n * multiplier) / multiplier
 
-    def nomberTostring(self, num):
+    def isNumber(self, word):
+        return '0' <= word[0] <= '9'
+
+    def numberToString(self, num):
         if num < 1000:
             return str(num)
         elif 1000 <= num < 1000000:
@@ -40,12 +43,54 @@ class Parse:
             s=str(num)
             return s+'B'
 
-    # Build a tokenize---> split by spaces
-    def Tokenize(self, text):
-        word_list = [self.stemmer.stem_term(word) for word in text.split(' ') if word not in self.stop_words]
+    def strip_punc(self, word):
+        start = 0
+        end = len(word) - 1
+        while start < len(word) and word[start] in string.punctuation:
+            start += 1
+        while end >= 0 and word[end] in string.punctuation:
+            end -= 1
+        return word[start:end + 1]
 
-        # return [self.add_to_dict(word) for word in word_list]
-        return word_list
+    # Build a tokenize---> split by spaces
+    def Tokenize(self, text):  # TODO: add two more rules and names support
+        word_list = [self.strip_punc(self.stemmer.stem_term(word)) for word in text.split(' ')]
+        output = []
+        for i in range(len(word_list)):
+            word = word_list[i]
+            if not word:
+                continue
+            if self.isNumber(word):  # TODO: add fraction support
+                try:
+                    if word[-1] == '%' or word_list[i+1] == 'percent' or word_list[i+1] == 'percentag':
+                        if word[-1] != '%':
+                            i += 1
+                            word = word + '%'
+                    elif word_list[i + 1] == 'Thousand':
+                        i += 1
+                        word = self.numberToString(float(word) * 1000)
+                    elif word_list[i + 1] == 'Million':
+                        i += 1
+                        word = self.numberToString(float(word) * 1000000)
+                    elif word_list[i + 1] == 'Billion':
+                        i += 1
+                        word = self.numberToString(float(word) * 1000000000)
+                    else:
+                        word = self.numberToString(float(word))
+                    output.append(self.add_to_dict(word))
+                except:
+                    output.append(self.add_to_dict(word))
+            elif word[0] == '#':
+                for word in self.hastag(word):
+                    output.append(self.add_to_dict(word))
+            elif word[0:4] == "http":
+                for word in self.URL(word):
+                    output.append(self.add_to_dict(word))
+            elif word[0] == '@':
+                output.append(self.add_to_dict(word))
+            else:  # TODO: add support for names
+                output.append(self.add_to_dict(word))
+        return output
 
     def add_to_dict(self, word):
         low_case = word.lower()
@@ -60,36 +105,17 @@ class Parse:
     # #stayAtHome--->['#stayAtHome', 'stay', 'At',Home]
     def hastag(self, term):
         res = [term]
-        if term[0] == '#':
-            start = 1
-            for i in range(2, len(term)):
-                if term[i].isupper():
-                    res.append(term[start:i])
-                    start = i
-            res.append(term[start:])
+        start = 1
+        for i in range(2, len(term)):
+            if term[i].isupper():
+                res.append(term[start:i])
+                start = i
+        res.append(term[start:])
         return res
 
     def URL(self,text):
-        if text[0:5] == "https":
-            return [v for v in re.split('[://]|[/?]|[/]|[=]',text) if v]
-        else : return [text]
+        return [v for v in re.split('[://]|[/?]|[/]|[=]',text) if v]
 
-
-
-    # @roi
-    def tag(self, text):
-        res = []
-        start = 0
-        for i in range(len(text)):
-            if text[i] == '@':
-                start = i
-            if text[i] == ' ' and start != 0:
-                if text[i - 1] == ':':
-                    res.append(text[start:i - 1])
-                else:
-                    res.append(text[start:i + 1])
-                break
-        print(res)
 
     def parse_sentence(self, text):
         """
@@ -97,10 +123,7 @@ class Parse:
         :param text:
         :return:
         """
-        text_tokens = self.Tokenize(text)
-
-        print(text_tokens)
-        # self.hastag('#stayAtHomeTonighRoi')
+        text_tokens = [token for token in self.Tokenize(text) if token.text.lower() not in self.stop_words]
         return text_tokens
 
     def parse_doc(self, doc_as_list):
@@ -127,7 +150,6 @@ class Parse:
                 term_dict[term] = 1
             else:
                 term_dict[term] += 1
-        print(self.tag(full_text))
         document = Document(tweet_id, tweet_date, full_text, url, retweet_text, retweet_url, quote_text,
                             quote_url, term_dict, doc_length)
         return document
