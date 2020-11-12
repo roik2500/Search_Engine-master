@@ -8,7 +8,6 @@ import utils
 
 def run_engine():
     """
-
     :return:
     """
     number_of_documents = 0
@@ -25,7 +24,7 @@ def run_engine():
             # parse the document
             parsed_document = p.parse_doc(document)
             print(document)
-            break
+            #break
             number_of_documents += 1
             # index the document data
             indexer.add_new_doc(parsed_document)

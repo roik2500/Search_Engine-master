@@ -1,8 +1,11 @@
+import math
+
 from nltk.corpus import stopwords
 from document import Document
 from Term import Term
 from nltk.stem import PorterStemmer
 from stemmer import Stemmer
+
 
 class Parse:
     def __init__(self):
@@ -10,9 +13,37 @@ class Parse:
         self.word_dict = {}
         self.stemmer = Stemmer()
 
+# helper function for nomberTostring-->return 3 digit after the point
+    def round_down(self,n, decimals=0):
+        multiplier = 10 ** decimals
+        return math.floor(n * multiplier) / multiplier
+
+    def nomberTostring(self, num):
+        if num < 1000:
+            return str(num)
+        elif 1000 <= num < 1000000:
+            num = num / 1000
+            num = self.round_down(num, 3)
+            if num == int(num): num=int(num)
+            s = str(num)
+            return s+'K'
+        elif 1000000 <= num < 1000000000:
+            num=num/1000000
+            num = self.round_down(num, 3)
+            if num == int(num): num=int(num)
+            s = str(num)
+            return s+'M'
+        else:
+            num=num/1000000000
+            num = self.round_down(num, 3)
+            if num == int(num): num=int(num)
+            s=str(num)
+            return s+'B'
+
     # Build a tokenize---> split by spaces
     def Tokenize(self, text):
         word_list = [self.stemmer.stem_term(word) for word in text.split(' ') if word not in self.stop_words]
+
         # return [self.add_to_dict(word) for word in word_list]
         return word_list
 
