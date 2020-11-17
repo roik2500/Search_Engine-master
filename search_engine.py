@@ -1,3 +1,5 @@
+import time
+
 from reader import ReadFile
 from configuration import ConfigClass
 from parser_module import Parse
@@ -20,15 +22,31 @@ def run_engine():
     # Iterate over every document in the file
     for documents_list in r:
         for idx, document in enumerate(documents_list):
+            print(document)
             # parse the document
             parsed_document = p.parse_doc(document)
+            if len(p.returnEntity()) >= 1:
+                updateDocByEntity(parsed_document, p.returnEntity())
+            # break
             number_of_documents += 1
+            print(number_of_documents)
+
             # index the document data
             indexer.add_new_doc(parsed_document)
 
     print('Finished parsing and indexing. Starting to export files')
     utils.save_obj(indexer.inverted_idx, "inverted_idx")
     utils.save_obj(indexer.postingDict, "posting")
+
+
+# This function for update the doc,adding the entity that appears at least in tow doc in all the corpus
+def updateDocByEntity(doc, list_of_entity):
+    for term in list_of_entity:  # tf
+        if term not in doc.term_dict.keys():
+            doc.term_dict[term] = 1
+        else:
+            doc.term_dict[term] += 1
+    return doc
 
 
 def load_index():
@@ -47,7 +65,10 @@ def search_and_rank_query(query, inverted_index, k):
 
 
 def main():
+    start_time = time.time()
     run_engine()
+    print("--- %s seconds ---" % (time.time() - start_time))
+
     query = input("Please enter a query: ")
     k = int(input("Please enter number of docs to retrieve: "))
     inverted_index = load_index()

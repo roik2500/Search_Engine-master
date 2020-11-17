@@ -24,4 +24,8 @@ class Document:
         self.quote_text = quote_text
         self.quote_url = quote_url
         self.term_doc_dictionary = term_doc_dictionary
-        self.doc_length = doc_length
+
+        self.doc_length = doc_length  #|Dj|
+       # if len(self.maxTerm) > 0:
+           # self.maxTerm = max(term_doc_dictionary.values())
+        self.numberOfUniquTerm = len(term_doc_dictionary.keys())

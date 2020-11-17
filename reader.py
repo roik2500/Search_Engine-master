@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-
+import glob2
 
 class ReadFile:
     def __init__(self, corpus_path):
