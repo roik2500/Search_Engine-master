@@ -1,12 +1,8 @@
 class Term:
     def __init__(self, text):
         self.text = text
-        self.numOfInterfaces = 0
-        self.numoddoc = 0
+        self.numOfInterfaces = 1
+        self.numOdDoc = 0 #dfi
 
 
-
-
-    def __repr__(self):
-        return self.text
 

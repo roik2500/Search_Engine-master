@@ -1,5 +1,5 @@
 import time
-
+from memoryposting import MemoryPosting
 from reader import ReadFile
 from configuration import ConfigClass
 from parser_module import Parse
@@ -13,30 +13,48 @@ def run_engine():
     :return:
     """
     number_of_documents = 0
-
     config = ConfigClass()
     r = ReadFile(corpus_path=config.get__corpusPath())
     p = Parse()
+    m = MemoryPosting()
     indexer = Indexer(config)
+    maxpostingsize=100
 
     # Iterate over every document in the file
+    idx = 0
     for documents_list in r:
-        for idx, document in enumerate(documents_list):
-            print(document)
+        for document in documents_list:
+            if idx == 1000:return
             # parse the document
-            parsed_document = p.parse_doc(document)
-            if len(p.returnEntity()) >= 1:
-                updateDocByEntity(parsed_document, p.returnEntity())
+            ## parsed_document = p.parse_doc(document)
+            parsed_list = p.parse_doc(document)
+
+            ## if len(p.returnEntity()) >= 1:
+            ##  updateDocByEntity(parsed_document, p.returnEntity())
+
             # break
-            number_of_documents += 1
-            print(number_of_documents)
+            #number_of_documents += 1
+            print(idx)
 
             # index the document data
-            indexer.add_new_doc(parsed_document)
+            indexer.add_new_doc(parsed_list,idx,document[0])
+            idx += 1
+            if idx % maxpostingsize == 0:
+                m.Save(indexer.postingDict)
+
 
     print('Finished parsing and indexing. Starting to export files')
-    utils.save_obj(indexer.inverted_idx, "inverted_idx")
-    utils.save_obj(indexer.postingDict, "posting")
+
+
+
+# utils.save_obj(indexer.inverted_idx, "inverted_idx")
+# utils.save_obj(indexer.postingDict, "posting")
+
+
+
+def CreatInvertedIndex(word_dict):
+    inverted_index={} #key=term  value=()
+
 
 
 # This function for update the doc,adding the entity that appears at least in tow doc in all the corpus
@@ -64,6 +82,7 @@ def search_and_rank_query(query, inverted_index, k):
     return searcher.ranker.retrieve_top_k(ranked_docs, k)
 
 
+# def main(corpus_path,output_path,stemming,queries,num_docs_to_retrieve):
 def main():
     start_time = time.time()
     run_engine()
