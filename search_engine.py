@@ -42,18 +42,13 @@ def run_engine():
             if idx % maxpostingsize == 0:
                 m.Save(indexer.postingDict)
 
-
+    inv_index = CreatInvertedIndex(p.word_dict)
     print('Finished parsing and indexing. Starting to export files')
-
-
-
-# utils.save_obj(indexer.inverted_idx, "inverted_idx")
-# utils.save_obj(indexer.postingDict, "posting")
-
-
+    m.Merge(inv_index)
+    utils.save_obj(inv_index,'inverted_idx')
 
 def CreatInvertedIndex(word_dict):
-    inverted_index={} #key=term  value=()
+    return #TODO: implement
 
 
 

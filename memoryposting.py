@@ -5,7 +5,7 @@ class MemoryPosting:
 
 
     ##Creating a new txt file and writing the Data
-    def Save(self, postingdict ):
+    def Save(self, postingdict ): #TODO: improve protocol
         file = open(f'{self.dir}\\{self.count}.txt','w')
         for post in postingdict.keys():
             data = self.createPostData(post,postingdict[post])
@@ -24,4 +24,6 @@ class MemoryPosting:
 
 
 
-    #def Merge(self):
+    def Merge(self):
+        # TODO: implement
+        return

@@ -10,10 +10,10 @@ import re
 
 class Parse:
     def __init__(self):
-        self.stop_words = stopwords.words('english')  # TODO: get words from local file
         self.word_dict = {}
         self.stemmer = Stemmer()
         self.entity = {}  # dict of entity in corpus key=tern value=number of instances
+        self.stop_words = [self.stemmer.stem_term(word) for word in stopwords.words('english')]  # TODO: get words from local file
 
     # This function return a list of words(entity) that appears at least in tow document
     # and remove the words from dict
@@ -61,7 +61,7 @@ class Parse:
     def strip_punc(self, word):
         start = 0
         end = len(word) - 1
-        while start < len(word) and word[start] in string.punctuation:
+        while start < len(word) and word[start] in (string.punctuation + '\n\t'):
             if word[start] == '@' or word[start] == '#': break
             start += 1
         while end >= 0 and word[end] in string.punctuation:
@@ -75,7 +75,7 @@ class Parse:
     def Tokenize(self, text):  # TODO: add two more rules and names support
         text = self.removeEmojify(text)
         self.Eentity(text) # check if the text inclode the Eentity and update the dict if is indeed
-        word_list = [self.strip_punc(self.stemmer.stem_term(word)) for word in text.split(' ')] # creating a list of split word after stemming
+        word_list = [self.strip_punc(self.stemmer.stem_term(word)) for word in re.split('[ ]|[\n]', text)] # creating a list of split word after stemming
         output = []
         for i in range(len(word_list)):
             word = word_list[i]
@@ -92,13 +92,13 @@ class Parse:
                         word += ' ' + word_list[i + 1]
                         output.append(self.add_to_dict(word))
                     # cases of Thousand=K    Millio=M    Billio=B--->the function numberToString do it
-                    elif word_list[i + 1] == 'Thousand':
+                    elif word_list[i + 1] == 'Thousand' or word_list[i + 1] == 'thousand':
                         i += 1
                         word = self.numberToString(float(word) * 1000)
-                    elif word_list[i + 1] == 'Million':
+                    elif word_list[i + 1] == 'Million' or word_list[i + 1] == 'million':
                         i += 1
                         word = self.numberToString(float(word) * 1000000)
-                    elif word_list[i + 1] == 'Billion':
+                    elif word_list[i + 1] == 'Billion' or word_list[i + 1] == 'billion':
                         i += 1
                         word = self.numberToString(float(word) * 1000000000)
                     else:
