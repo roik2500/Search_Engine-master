@@ -1,3 +1,4 @@
+import json
 import time
 from memoryposting import MemoryPosting
 from reader import ReadFile
@@ -43,10 +44,7 @@ def run_engine():
     inv_index = indexer.CreatInvertedIndex(p.word_dict,idx)
     print('Finished parsing and indexing. Starting to export files')
     m.Merge(inv_index)
-    utils.save_obj(inv_index,'inverted_idx')
-
-
-
+    #utils.save_obj(inv_index,'inverted_idx')
 
 
 # This function for update the doc,adding the entity that appears at least in tow doc in all the corpus
@@ -61,14 +59,17 @@ def updateDocByEntity(doc, list_of_entity):
 
 def load_index():
     print('Load inverted index')
+    config = ConfigClass()
     inverted_index = utils.load_obj("inverted_idx")
     return inverted_index
 
 
-def search_and_rank_query(query, inverted_index, k):
+def search_and_rank_query(query,inverted_index, k):
     config = ConfigClass()
     p = Parse()
-    query_as_list = [term.text.lower() for term in p.parse_sentence(query)]
+    roi=p.parse_sentence(query)
+    query_as_list = [term.text.lower() for term in roi]
+    #query_as_list = p.parse_sentence(query)
     searcher = Searcher(inverted_index,config.PostingFile)
     WoftermInQuery=searcher.CalculateW(query_as_list)
     relevant_docs = searcher.relevant_docs_from_posting(WoftermInQuery.keys())

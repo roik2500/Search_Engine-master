@@ -24,6 +24,7 @@ class Searcher:
             maxterm = max(maxterm,output[word])
 
         for word in output.keys():
+            if word not in self.inverted_index:continue ##if word not in our compus-->worong typing of input
             output[word] = (output[word]/maxterm)*self.inverted_index[word][2]
 
         return output
@@ -51,10 +52,10 @@ class Searcher:
                     output[tweetid][query[i]] = postingLists[i][lists_indx[i]][2]*self.inverted_index[query[i]][2] #wiq
                     lists_indx[i]+=1
             else:
-                min_index=0
+                min_index =0
                 for i in range(1,query_size):
                     if postingLists[lists_indx[i]][0]<postingLists[lists_indx[min_index]][0]: min_index=i
-                lists_indx[i]+=1
+                lists_indx[min_index]+=1
         return output
 
 

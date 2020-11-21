@@ -6,6 +6,7 @@ class ConfigClass:
         self.saveFilesWithoutStem = self.savedFileMainFolder + "/WithoutStem"
         self.toStem = False
         self.PostingFile = 'posting_dictionary.txt'
+        self.invertedindex='inverted_file'
 
         print('Project was created successfully..')
 
