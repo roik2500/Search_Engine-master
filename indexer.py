@@ -24,7 +24,7 @@ class Indexer:
         #this structur include a postingbyTerm object
         postings = {}   ##key=term  value=(docID,tweetID,tf,tfi)
         max_term = 0  # number of maximum  word interfaces per doc
-        m = MemoryPosting()
+        #m = MemoryPosting()
 
         # document=updateDocByEntity
         for word in document:
@@ -47,9 +47,9 @@ class Indexer:
         self.inverted_idx = {} ##key:str name value: start,size,idfi=log(N/dfi)
         N = idx
         for word in word_dict.keys():
-            if word_dict[word].numOdDoc == 0:
+            if word_dict[word].numOfDoc == 0:
                 continue
-            self.inverted_idx[word] = [-1,-1,math.log2(N/word_dict[word].numOdDoc)]
+            self.inverted_idx[word] = [-1,-1,math.log2(N/word_dict[word].numOfDoc)]
         return  self.inverted_idx
 
 

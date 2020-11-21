@@ -14,24 +14,72 @@ class Searcher:
         self.inverted_index = inverted_index
         self.postingfile = postingfile
 
+    def CalculateW(self,query):
+        maxterm = 0
+        output = {}
+        for word in query:
+            if word in output.keys():
+                output[word] += 1
+            else: output[word] = 1
+            maxterm = max(maxterm,output[word])
+
+        for word in output.keys():
+            output[word] = (output[word]/maxterm)*self.inverted_index[word][2]
+
+        return output
+
+
+
     def relevant_docs_from_posting(self, query):
         """
         This function loads the posting list and count the amount of relevant documents per term.
-        :param query: query
+        :param query: list of term object (query)
         :return: dictionary of relevant documents.
         """
-        for term in query:
-            try:  # an example of checks that you have to do
-                posting_doc = posting[term]
-                for doc_tuple in posting_doc:
-                    doc = doc_tuple[0]
-                    if doc not in relevant_docs.keys():
-                        relevant_docs[doc] = 1
-                    else:
-                        relevant_docs[doc] += 1
-            except:
-                print('term {} not found in posting'.format(term))
-        return relevant_docs
+        output={}
+        postingLists = [self.FindPostingByTerm(term) for term in query]  #list of postingfile -->[idx,tweetid,tfi]
+        query_size = len(query)
+        lists_indx = [0]*query_size #pointers to postingdlist
+
+        ## check if we finish to read all the posting file (just one)
+        while not [True for i in range(query_size) if lists_indx[i]>=len(postingLists[i])]:
+            docs = {postingLists[i][lists_indx[i]][1] for i in range(query_size)}#list of docid
+            if len(docs)==1: #all the terms from query in this docid
+                tweetid=docs.pop()
+                output[tweetid]={}
+                for i in range(query_size):
+                    output[tweetid][query[i]] = postingLists[i][lists_indx[i]][2]*self.inverted_index[query[i]][2] #wiq
+                    lists_indx[i]+=1
+            else:
+                min_index=0
+                for i in range(1,query_size):
+                    if postingLists[lists_indx[i]][0]<postingLists[lists_indx[min_index]][0]: min_index=i
+                lists_indx[i]+=1
+        return output
+
+
+
+
+
+
+        # for term in query:
+        #       self.FindPostingByTerm(term)
+        #     try:  # an example of checks that you have to do
+        #         list_of_terms = query[term]
+        #         for doc_tuple in posting_doc:
+        #             doc = doc_tuple[0]
+        #             if doc not in relevant_docs.keys():
+        #                 relevant_docs[doc] = 1
+        #             else:
+        #                 relevant_docs[doc] += 1
+        #     except:
+        #         print('term {} not found in posting'.format(term))
+        # return relevant_docs
+
+    # [
+    #     {tweetId1:
+    #          {term:w}}
+    # ]
 
     def FindPostingByTerm(self,term):
         if term not in self.inverted_index.keys():
