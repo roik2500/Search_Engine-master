@@ -5,13 +5,14 @@ import utils
 
 class Searcher:
 
-    def __init__(self, inverted_index):
+    def __init__(self, inverted_index,postingfile=None):
         """
         :param inverted_index: dictionary of inverted index
         """
         self.parser = Parse()
         self.ranker = Ranker()
         self.inverted_index = inverted_index
+        self.postingfile = postingfile
 
     def relevant_docs_from_posting(self, query):
         """
@@ -19,8 +20,6 @@ class Searcher:
         :param query: query
         :return: dictionary of relevant documents.
         """
-        posting = utils.load_obj("posting")
-        relevant_docs = {}
         for term in query:
             try:  # an example of checks that you have to do
                 posting_doc = posting[term]
@@ -33,3 +32,26 @@ class Searcher:
             except:
                 print('term {} not found in posting'.format(term))
         return relevant_docs
+
+    def FindPostingByTerm(self,term):
+        if term not in self.inverted_index.keys():
+            print("the term not in inverted index "+term)
+            return None
+        data = None
+        with open(self.postingfile,'r') as file:
+            start = self.inverted_index[term][0]
+            size = self.inverted_index[term][1]
+            file.seek(start)
+            data = file.read(size-1)
+            data = data.split('~#')[1]
+            data = data[1:-1].split(')(')
+            data = [self.read_data(d) for d in data]
+        return data
+
+    def read_data(self,data):
+        d = data.split(',')
+        return (int(d[0]),d[1],float(d[2]))
+
+
+
+

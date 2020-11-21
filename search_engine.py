@@ -16,23 +16,19 @@ def run_engine():
     config = ConfigClass()
     r = ReadFile(corpus_path=config.get__corpusPath())
     p = Parse()
-    m = MemoryPosting()
+    m = MemoryPosting(config.PostingFile)
     indexer = Indexer(config)
-    maxpostingsize=100
+    maxpostingsize = 1000
 
     # Iterate over every document in the file
     idx = 0
     for documents_list in r:
         for document in documents_list:
-            if idx == 1000:return
+            #print(document)
             # parse the document
             ## parsed_document = p.parse_doc(document)
-            parsed_list = p.parse_doc(document)
-
-            ## if len(p.returnEntity()) >= 1:
-            ##  updateDocByEntity(parsed_document, p.returnEntity())
-
-            # break
+            parsed_list = p.parse_doc(document,idx)
+            #break
             #number_of_documents += 1
             print(idx)
 
@@ -41,14 +37,15 @@ def run_engine():
             idx += 1
             if idx % maxpostingsize == 0:
                 m.Save(indexer.postingDict)
+            if idx == 10000: break
+        break
 
-    inv_index = CreatInvertedIndex(p.word_dict)
+    inv_index = indexer.CreatInvertedIndex(p.word_dict,idx)
     print('Finished parsing and indexing. Starting to export files')
     m.Merge(inv_index)
     utils.save_obj(inv_index,'inverted_idx')
 
-def CreatInvertedIndex(word_dict):
-    return #TODO: implement
+
 
 
 
@@ -69,9 +66,10 @@ def load_index():
 
 
 def search_and_rank_query(query, inverted_index, k):
+    config = ConfigClass()
     p = Parse()
     query_as_list = p.parse_sentence(query)
-    searcher = Searcher(inverted_index)
+    searcher = Searcher(inverted_index,config.PostingFile)
     relevant_docs = searcher.relevant_docs_from_posting(query_as_list)
     ranked_docs = searcher.ranker.rank_relevant_doc(relevant_docs)
     return searcher.ranker.retrieve_top_k(ranked_docs, k)

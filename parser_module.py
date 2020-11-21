@@ -10,6 +10,7 @@ import re
 
 class Parse:
     def __init__(self):
+        self.idx=0
         self.word_dict = {}
         self.stemmer = Stemmer()
         self.entity = {}  # dict of entity in corpus key=tern value=number of instances
@@ -22,8 +23,8 @@ class Parse:
         entities = []
         entities += self.entity.keys()
         for word in entities:
-            if self.entity[word] >= 2:
-                res.append(word)
+            if len(self.entity[word].listOfDoc) >= 2:
+                res.append(self.entity[word])
                 self.entity.pop(word)
         return res
 
@@ -74,13 +75,35 @@ class Parse:
     # Build a tokenize---> split by spaces
     def Tokenize(self, text):  # TODO: add two more rules and names support
         text = self.removeEmojify(text)
-        self.Eentity(text) # check if the text inclode the Eentity and update the dict if is indeed
-        word_list = [self.strip_punc(self.stemmer.stem_term(word)) for word in re.split('[ ]|[\n]', text)] # creating a list of split word after stemming
+        word_list = [self.strip_punc(self.stemmer.stem_term(word)) for word in text.split()] # creating a list of split word after stemming
         output = []
         for i in range(len(word_list)):
             word = word_list[i]
+            word2 = ''
             if not word:
                 continue
+
+            #find a entity
+            if word_list[i] != '' and len(word_list[i]) > 1 and word_list[i][0].isupper():
+                    #collecting the words of entity to one word
+                    counter = i
+                    while counter<len(word_list) and len(word_list[counter])>1 and word_list[counter][0].isupper() and not word_list[counter][1].isupper():
+                        word2 = word2 + ' ' + word_list[counter]
+                        counter += 1
+
+                    # list_of_entity.append(word[1:])
+                    if word2 == '': continue
+
+                    if word2 != '':#update the dict of entities
+                        if word2 in self.entity.keys():
+                            self.entity[word2].listOfDoc.add(self.idx)
+                        else:
+                            t = Term(word2)
+                            t.listOfDoc.add(self.idx)
+                            self.entity[word2] = t
+                        word2 = ''
+                    if word == word_list[-1]:continue
+
             if self.isNumber(word):  # TODO: add fraction support
                 try:  # here we are checking the text by the roles of parse
                     if word[-1] == '%' or word_list[i + 1] == 'percent' or word_list[i + 1] == 'percentag':
@@ -121,33 +144,11 @@ class Parse:
                 output.append(self.add_to_dict(word))
         return output
 
-    def Eentity(self, text):
-        word = ""
-        res = []
-        text = text.split(' ')
-        for i in range(len(text)):
-            if text[i] != '' and len(text[i]) > 1 and text[i][0].isupper() and not text[i][1].isupper():
-                word = word + text[i]
-                if text[i] == text[-1]:
-                    res.append(word[1:])
-                if word == '': continue
-            else:
-                if word != '':
-                    res.append(word)
-                    word = ''
-       # print(res)
-        for w in res:
-            #print(self.entity)
-            if w in self.entity.keys():
-                self.entity[w] += 1
-            else:
-                self.entity[w] = 1
-        return res
 
     def add_to_dict(self, word):
         low_case = word.lower()
         if low_case in self.word_dict.keys():
-            self.word_dict[low_case].numOfInterfaces+=1
+            self.word_dict[low_case].numOfInterfaces += 1
             if word == low_case:
                 self.word_dict[low_case].text = low_case
         else:
@@ -177,13 +178,19 @@ class Parse:
         text_tokens = [token for token in self.Tokenize(text) if token.text.lower() not in self.stop_words]
         return text_tokens
 
-    def parse_doc(self, doc_as_list):
+    def parse_doc(self, doc_as_list,idx=None):
         """
         This function takes a tweet document as list and break it into different fields
         :param doc_as_list: list re-preseting the tweet.
         :return: Document object with corresponding fields.
         """
-        return self.parse_sentence(doc_as_list[2])
+        #doc_as_list[2] = "@roi i go to Roi Kremer 10 3/7 #mom"
+        self.idx = idx
+        out = self.parse_sentence(doc_as_list[2])
+        #print(out)
+        #print(self.word_dict)
+        # print(self.entity)
+        return out
 
         # tweet_id = doc_as_list[0]
         # tweet_date = doc_as_list[1]

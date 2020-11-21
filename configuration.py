@@ -5,6 +5,7 @@ class ConfigClass:
         self.saveFilesWithStem = self.savedFileMainFolder + "/WithStem"
         self.saveFilesWithoutStem = self.savedFileMainFolder + "/WithoutStem"
         self.toStem = False
+        self.PostingFile = 'posting_dictionary.txt'
 
         print('Project was created successfully..')
 
