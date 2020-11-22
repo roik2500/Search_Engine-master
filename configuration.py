@@ -8,7 +8,7 @@ class ConfigClass:
         self.PostingFile = 'posting_dictionary.txt'
         self.invertedindex='inverted_file'
 
-        print('Project was created successfully..')
+        # print('Project was created successfully..')
 
     def get__corpusPath(self):
         return self.corpusPath

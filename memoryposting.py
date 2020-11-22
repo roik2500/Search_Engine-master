@@ -60,6 +60,5 @@ class MemoryPosting:
         for file in files:
             file.close()
         merged_file.close()
-        utils.save_obj(inverted_index,'inverted_file')
 
 

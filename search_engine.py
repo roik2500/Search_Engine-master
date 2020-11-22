@@ -31,7 +31,7 @@ def run_engine():
             parsed_list = p.parse_doc(document,idx)
             #break
             #number_of_documents += 1
-            print(idx)
+            # print(idx)
 
             # index the document data
             indexer.add_new_doc(parsed_list,idx,document[0])
@@ -44,8 +44,7 @@ def run_engine():
     inv_index = indexer.CreatInvertedIndex(p.word_dict,idx)
     print('Finished parsing and indexing. Starting to export files')
     m.Merge(inv_index)
-    #utils.save_obj(inv_index,'inverted_idx')
-
+    utils.save_obj(inv_index,'inverted_idx')
 
 # This function for update the doc,adding the entity that appears at least in tow doc in all the corpus
 def updateDocByEntity(doc, list_of_entity):
