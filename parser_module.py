@@ -18,14 +18,16 @@ class Parse:
 
     # This function return a list of words(entity) that appears at least in tow document
     # and remove the words from dict
-    def returnEntity(self):
+    def returnEntity(self): #TODO: need to fix-->make a problem
         res = []
-        entities = []
-        entities += self.entity.keys()
+        entities=[]
+        entities+= self.entity.keys()
         for word in entities:
             if len(self.entity[word].listOfDoc) >= 2:
                 res.append(self.entity[word])
                 self.entity.pop(word)
+        for e in res:
+            self.word_dict[e.text]=e
         return res
 
     # helper function for nomberTostring-->return 3 digit after the point
@@ -63,9 +65,10 @@ class Parse:
         start = 0
         end = len(word) - 1
         while start < len(word) and word[start] in (string.punctuation + '\n\t'):
-            if word[start] == '@' or word[start] == '#': break
+            if word[start] == '@' or word[start] == '#' or word[start]=='"': break
             start += 1
         while end >= 0 and word[end] in string.punctuation:
+            if word[end]=='"': break
             end -= 1
         return word[start:end + 1]
 
@@ -77,32 +80,39 @@ class Parse:
         text = self.removeEmojify(text)
         word_list = [self.strip_punc(self.stemmer.stem_term(word)) for word in text.split()] # creating a list of split word after stemming
         output = []
+
+        #find all the quotes in this doc
+        quoets = re.findall(r'"(.*?)"', text)
+        for q in quoets:
+            output.append(self.add_to_dict(q))
+
+        #The main loop
         for i in range(len(word_list)):
             word = word_list[i]
-            word2 = ''
             if not word:
                 continue
 
             #find a entity
-            if word_list[i] != '' and  len(word)!=len(word_list) and len(word_list[i]) > 1 and word_list[i][0].isupper():
-                    #collecting the words of entity to one word
-                    counter = i
-                    while counter<len(word_list) and len(word_list[counter])>1 and word_list[counter][0].isupper() and not word_list[counter][1].isupper():
-                        word2 = word2 + ' ' + word_list[counter]
-                        counter += 1
+            if word_list[i] != '' and  len(word) != len(word_list) and len(word_list[i]) > 1 and word_list[i][0].isupper():
+                entity = ''
+            #collecting the words of entity to one word
+                counter = i
+                while counter < len(word_list) and len(word_list[counter]) > 1 and word_list[counter][0].isupper() and not word_list[counter][1].isupper():
+                    entity += word_list[counter]+' '
+                    counter += 1
+                entity=entity[:-1]
+                # list_of_entity.append(word[1:])
+                if entity == '': continue
 
-                    # list_of_entity.append(word[1:])
-                    if word2 == '': continue
-
-                    if word2 != '':#update the dict of entities
-                        if word2 in self.entity.keys():
-                            self.entity[word2].listOfDoc.add(self.idx)
-                        else:
-                            t = Term(word2)
-                            t.listOfDoc.add(self.idx)
-                            self.entity[word2] = t
-                        word2 = ''
-                    #if word == word_list[-1]:continue
+                if entity != '' and len(entity.split()) > 1:#update the dict of entities
+                    if entity in self.entity.keys():
+                        self.entity[entity].listOfDoc.add(self.idx) #we will check if len(listofdoc)>=2 after the pares all of corpus
+                    else:
+                        t = Term(entity)
+                        t.listOfDoc.add(self.idx)
+                        self.entity[entity] = t
+                    entity = ''
+                #if word == word_list[-1]:continue
 
             if self.isNumber(word):  # TODO: add fraction support
                 try:  # here we are checking the text by the roles of parse
@@ -184,12 +194,17 @@ class Parse:
         :param doc_as_list: list re-preseting the tweet.
         :return: Document object with corresponding fields.
         """
-        #doc_as_list[2] = "@roi i go to Roi Kremer 10 3/7 #mom"
+        #doc_as_list[2] = '@roi i go to "Roi Kremer 10 3/7 #mom"  and i "go to find kinder"'
         self.idx = idx
         out = self.parse_sentence(doc_as_list[2])
+        ##### for check ######
+
         #print(out)
+
         #print(self.word_dict)
-        # print(self.entity)
+        #print(self.entity['Roi Kremer'].numOfDoc)
+
+        ##### for check #######
         return out
 
         # tweet_id = doc_as_list[0]

@@ -43,10 +43,10 @@ class Searcher:
         lists_indx = [0]*query_size #pointers to postingdlist
 
         ## check if we finish to read all the posting file (just one)
-        while not [True for i in range(query_size) if lists_indx[i]>=len(postingLists[i])]:
+        while not [True for i in range(query_size) if lists_indx[i]>=len(postingLists[i])]: #TODO: need to fixe that loop,its stack here sometimes
             docs = {postingLists[i][lists_indx[i]][1] for i in range(query_size)}#list of docid
-            if len(docs)==1: #all the terms from query in this docid
-                tweetid=docs.pop()
+            if len(docs) == 1: #all the terms from query in this docid
+                tweetid = docs.pop()
                 output[tweetid]={}
                 for i in range(query_size):
                     output[tweetid][query[i]] = postingLists[i][lists_indx[i]][2]*self.inverted_index[query[i]][2] #wiq

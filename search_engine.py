@@ -34,17 +34,20 @@ def run_engine():
             # print(idx)
 
             # index the document data
-            indexer.add_new_doc(parsed_list,idx,document[0])
+            indexer.add_new_doc(parsed_list,idx,document[0],p.returnEntity())
             idx += 1
             if idx % maxpostingsize == 0:
                 m.Save(indexer.postingDict)
-            if idx == 10000: break
+            if idx == 10000:
+                break
         break
+
 
     inv_index = indexer.CreatInvertedIndex(p.word_dict,idx)
     print('Finished parsing and indexing. Starting to export files')
     m.Merge(inv_index)
     utils.save_obj(inv_index,'inverted_idx')
+
 
 # This function for update the doc,adding the entity that appears at least in tow doc in all the corpus
 def updateDocByEntity(doc, list_of_entity):
@@ -66,18 +69,19 @@ def load_index():
 def search_and_rank_query(query,inverted_index, k):
     config = ConfigClass()
     p = Parse()
-    roi=p.parse_sentence(query)
-    query_as_list = [term.text.lower() for term in roi]
+    query_as_list = [term.text.lower() for term in p.parse_sentence(query)]
     #query_as_list = p.parse_sentence(query)
     searcher = Searcher(inverted_index,config.PostingFile)
-    WoftermInQuery=searcher.CalculateW(query_as_list)
+    WoftermInQuery = searcher.CalculateW(query_as_list)
     relevant_docs = searcher.relevant_docs_from_posting(list(WoftermInQuery.keys()))
     ranked_docs = searcher.ranker.rank_relevant_doc(relevant_docs, WoftermInQuery)
     return searcher.ranker.retrieve_top_k(ranked_docs, k)
 
 
-# def main(corpus_path,output_path,stemming,queries,num_docs_to_retrieve):
+#def main(corpus_path,output_path,stemming,queries,num_docs_to_retrieve):
 def main():
+    #config = ConfigClass()
+    #config.set__corpusPath(corpus_path)
     start_time = time.time()
     run_engine()
     print("--- %s seconds ---" % (time.time() - start_time))

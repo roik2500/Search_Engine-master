@@ -10,7 +10,7 @@ class Indexer:
         self.postingDict = {} ##key=term   value=postingd
         #self.config = config
 
-    def add_new_doc(self, document, document_index, tweetID):
+    def add_new_doc(self, document, document_index, tweetID,listofentity):
         """
         This function perform indexing process for a document list.
         Saved information is captures via two dictionaries ('inverted index' and 'posting')
@@ -24,7 +24,14 @@ class Indexer:
         #this structur include a postingbyTerm object
         postings = {}   ##key=term  value=(docID,tweetID,tf,tfi)
         max_term = 0  # number of maximum  word interfaces per doc
-        #m = MemoryPosting()
+
+        #Add the entity that apeared in at least 2 doc or more
+        #entity is a Term object-->for check that use with boolean func "isentity" in Term object
+        if len(listofentity) > 0:
+            for entity in listofentity:
+                document.append(entity)
+
+
 
         # document=updateDocByEntity
         for word in document:
@@ -51,6 +58,8 @@ class Indexer:
                 continue
             self.inverted_idx[word] = [-1,-1,math.log2(N/word_dict[word].numOfDoc)]
         return  self.inverted_idx
+
+    #def buildGlobalMethod(self): #TODO: create object of global method dict of dicts
 
 
 

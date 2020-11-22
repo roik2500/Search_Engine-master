@@ -6,9 +6,11 @@ class ConfigClass:
         self.saveFilesWithoutStem = self.savedFileMainFolder + "/WithoutStem"
         self.toStem = False
         self.PostingFile = 'posting_dictionary.txt'
-        self.invertedindex='inverted_file'
 
         # print('Project was created successfully..')
 
     def get__corpusPath(self):
         return self.corpusPath
+
+    def set__corpusPath(self,corpusPath):
+        self.corpusPath=corpusPath
