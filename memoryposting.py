@@ -50,9 +50,8 @@ class MemoryPosting:
             if not all_done:
                 new_line += '\n'
                 inverted_index[term.lower()][0] = curroffset
-                inverted_index[term.lower()][1] = len(new_line)
-                merged_file.write(new_line)
-                curroffset += len(new_line)
+                inverted_index[term.lower()][1] = merged_file.write(new_line)
+                curroffset += inverted_index[term.lower()][1]+1
         for file in files:
             file.close()
         merged_file.close()

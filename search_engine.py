@@ -71,8 +71,8 @@ def search_and_rank_query(query, inverted_index, k):
     query_as_list = [term.text.lower() for term in p.parse_sentence(query)]
     searcher = Searcher(inverted_index,config.PostingFile)
     WoftermInQuery=searcher.CalculateW(query_as_list)
-    relevant_docs = searcher.relevant_docs_from_posting(WoftermInQuery.keys())
-    ranked_docs = searcher.ranker.rank_relevant_doc(relevant_docs,WoftermInQuery)
+    relevant_docs = searcher.relevant_docs_from_posting(list(WoftermInQuery.keys()))
+    ranked_docs = searcher.ranker.rank_relevant_doc(relevant_docs, WoftermInQuery)
     return searcher.ranker.retrieve_top_k(ranked_docs, k)
 
 

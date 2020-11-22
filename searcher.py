@@ -53,7 +53,7 @@ class Searcher:
             else:
                 min_index=0
                 for i in range(1,query_size):
-                    if postingLists[lists_indx[i]][0]<postingLists[lists_indx[min_index]][0]: min_index=i
+                    if postingLists[i][lists_indx[i]][0]<postingLists[i][lists_indx[min_index]][0]: min_index=i
                 lists_indx[i]+=1
         return output
 
@@ -87,6 +87,7 @@ class Searcher:
             return None
         data = None
         with open(self.postingfile,'r') as file:
+            inv = self.inverted_index
             start = self.inverted_index[term][0]
             size = self.inverted_index[term][1]
             file.seek(start)
