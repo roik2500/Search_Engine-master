@@ -1,3 +1,8 @@
+import json
+
+import utils
+
+
 class MemoryPosting:
     def __init__(self,postingFile):
         self.postingFile=postingFile
@@ -55,3 +60,6 @@ class MemoryPosting:
         for file in files:
             file.close()
         merged_file.close()
+        utils.save_obj(inverted_index,'inverted_file')
+
+

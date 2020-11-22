@@ -84,7 +84,7 @@ class Parse:
                 continue
 
             #find a entity
-            if word_list[i] != '' and len(word_list[i]) > 1 and word_list[i][0].isupper():
+            if word_list[i] != '' and  len(word)!=len(word_list) and len(word_list[i]) > 1 and word_list[i][0].isupper():
                     #collecting the words of entity to one word
                     counter = i
                     while counter<len(word_list) and len(word_list[counter])>1 and word_list[counter][0].isupper() and not word_list[counter][1].isupper():
@@ -102,7 +102,7 @@ class Parse:
                             t.listOfDoc.add(self.idx)
                             self.entity[word2] = t
                         word2 = ''
-                    if word == word_list[-1]:continue
+                    #if word == word_list[-1]:continue
 
             if self.isNumber(word):  # TODO: add fraction support
                 try:  # here we are checking the text by the roles of parse

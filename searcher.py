@@ -24,6 +24,7 @@ class Searcher:
             maxterm = max(maxterm,output[word])
 
         for word in output.keys():
+            if word not in self.inverted_index:continue ##if word not in our compus-->worong typing of input
             output[word] = (output[word]/maxterm)*self.inverted_index[word][2]
 
         return output
@@ -54,7 +55,7 @@ class Searcher:
                 min_index=0
                 for i in range(1,query_size):
                     if postingLists[i][lists_indx[i]][0]<postingLists[i][lists_indx[min_index]][0]: min_index=i
-                lists_indx[i]+=1
+                lists_indx[min_index]+=1
         return output
 
 
@@ -87,7 +88,6 @@ class Searcher:
             return None
         data = None
         with open(self.postingfile,'r') as file:
-            inv = self.inverted_index
             start = self.inverted_index[term][0]
             size = self.inverted_index[term][1]
             file.seek(start)
