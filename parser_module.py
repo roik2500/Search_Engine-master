@@ -27,7 +27,7 @@ class Parse:
                 res.append(self.entity[word])
                 self.entity.pop(word)
         for e in res:
-            self.word_dict[e.text]=e
+            self.word_dict[e.text.lower()] = e
         return res
 
     # helper function for nomberTostring-->return 3 digit after the point
@@ -78,13 +78,20 @@ class Parse:
     # Build a tokenize---> split by spaces
     def Tokenize(self, text):  # TODO: add two more rules and names support
         text = self.removeEmojify(text)
-        word_list = [self.strip_punc(self.stemmer.stem_term(word)) for word in text.split()] # creating a list of split word after stemming
+        #word_list = [self.strip_punc(self.stemmer.stem_term(word)) for word in text.split()] # creating a list of split word after stemming
+        word_list=[]
+        for word in text.split():
+            if '"' in word:
+                word_list.append(self.strip_punc(word))
+            else:word_list.append(self.strip_punc(self.stemmer.stem_term(word)))
+
         output = []
 
         #find all the quotes in this doc
         quoets = re.findall(r'"(.*?)"', text)
         for q in quoets:
-            output.append(self.add_to_dict(q))
+            qu='"'+q+'"'
+            output.append(self.add_to_dict(qu))
 
         #The main loop
         for i in range(len(word_list)):
@@ -93,25 +100,36 @@ class Parse:
                 continue
 
             #find a entity
-            if word_list[i] != '' and  len(word) != len(word_list) and len(word_list[i]) > 1 and word_list[i][0].isupper():
-                entity = ''
-            #collecting the words of entity to one word
-                counter = i
-                while counter < len(word_list) and len(word_list[counter]) > 1 and word_list[counter][0].isupper() and not word_list[counter][1].isupper():
-                    entity += word_list[counter]+' '
-                    counter += 1
-                entity=entity[:-1]
-                # list_of_entity.append(word[1:])
-                if entity == '': continue
-
-                if entity != '' and len(entity.split()) > 1:#update the dict of entities
-                    if entity in self.entity.keys():
-                        self.entity[entity].listOfDoc.add(self.idx) #we will check if len(listofdoc)>=2 after the pares all of corpus
-                    else:
-                        t = Term(entity)
-                        t.listOfDoc.add(self.idx)
-                        self.entity[entity] = t
+            if word_list[i] != '' and  len(word) != len(word_list) and len(word_list[i]) > 1 :
                     entity = ''
+                #collecting the words of entity to one word
+                    counter = i
+                    while counter < len(word_list) and len(word_list[counter]) > 1 and word_list[counter][0].isupper() and not word_list[counter][1].isupper():
+                        entity += word_list[counter]+' '
+                        counter += 1
+                    entity=entity[:-1]
+                    # list_of_entity.append(word[1:])
+                    if entity == '': continue
+
+                    if entity != '' and len(entity.split()) > 1:#update the dict of entities
+                        if entity not in self.word_dict.keys():
+                            t = Term(entity)
+                            t.listOfDoc.add(self.idx)
+                            self.word_dict[entity]=t
+                            output.append(t)
+                        else:
+                            self.word_dict[entity].listOfDoc.add(self.idx)
+                            output.append(self.word_dict[entity])
+
+
+
+                    # if entity in self.entity.keys():
+                    #     self.entity[entity].listOfDoc.add(self.idx) #we will check if len(listofdoc)>=2 after the pares all of corpus
+                    # else:
+                    #     t = Term(entity)
+                    #     t.listOfDoc.add(self.idx)
+                    #     self.entity[entity] = t #key=string entity   value=Term of entity
+                    # entity = ''
                 #if word == word_list[-1]:continue
 
             if self.isNumber(word):  # TODO: add fraction support
@@ -194,7 +212,7 @@ class Parse:
         :param doc_as_list: list re-preseting the tweet.
         :return: Document object with corresponding fields.
         """
-        #doc_as_list[2] = '@roi i go to "Roi Kremer 10 3/7 #mom"  and i "go to find kinder"'
+        #doc_as_list[2] = '@roi i go to Roi Kremer 10 3/7 "#mom" and i "go kinder"'
         self.idx = idx
         out = self.parse_sentence(doc_as_list[2])
         ##### for check ######

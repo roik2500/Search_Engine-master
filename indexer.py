@@ -10,7 +10,7 @@ class Indexer:
         self.postingDict = {} ##key=term   value=postingd
         #self.config = config
 
-    def add_new_doc(self, document, document_index, tweetID,listofentity):
+    def add_new_doc(self, document, document_index, tweetID):
         """
         This function perform indexing process for a document list.
         Saved information is captures via two dictionaries ('inverted index' and 'posting')
@@ -25,16 +25,11 @@ class Indexer:
         postings = {}   ##key=term  value=(docID,tweetID,tf,tfi)
         max_term = 0  # number of maximum  word interfaces per doc
 
-        #Add the entity that apeared in at least 2 doc or more
-        #entity is a Term object-->for check that use with boolean func "isentity" in Term object
-        if len(listofentity) > 0:
-            for entity in listofentity:
-                document.append(entity)
-
-
-
         # document=updateDocByEntity
         for word in document:
+            if word.isentity():
+                if len(word.listOfDoc)<2:
+                    continue
             if word in postings.keys():
                 postings[word].tfi += 1
             else:  # first doc of this word

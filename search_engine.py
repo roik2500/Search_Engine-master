@@ -34,12 +34,13 @@ def run_engine():
             # print(idx)
 
             # index the document data
-            indexer.add_new_doc(parsed_list,idx,document[0],p.returnEntity())
+            indexer.add_new_doc(parsed_list,idx,document[0])
             idx += 1
             if idx % maxpostingsize == 0:
                 m.Save(indexer.postingDict)
-            if idx == 10000:
-                break
+
+            if idx == 10:
+                return
         break
 
 
