@@ -1,4 +1,3 @@
-import json
 import time
 from memoryposting import MemoryPosting
 from reader import ReadFile

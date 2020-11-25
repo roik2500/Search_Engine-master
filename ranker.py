@@ -7,6 +7,7 @@ class Ranker:
         """
         This function provides rank for each relevant document and sorts them by their scores.
         The current score considers solely the number of terms shared by the tweet (full_text) and query.
+        :param query_grades: the W grade for every term in the query
         :param relevant_doc: dictionary of documents that contains at least one term from the query.
         :return: sorted list of documents by score
         """
@@ -15,7 +16,7 @@ class Ranker:
             score = 0
             for term in relevant_doc[doc].keys():
                 score += query_grades[term]*relevant_doc[doc][term]
-            output.append((doc,score))
+            output.append((doc, score))
         return sorted(output, key=lambda item: item[1], reverse=True)
 
     @staticmethod
