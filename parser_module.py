@@ -15,17 +15,26 @@ class Parse:
         self.stemmer = Stemmer()
         self.entity = {}  # dict of entity in corpus key=tern value=number of instances
         self.stop_words = [self.stemmer.stem_term(word) for word in stopwords.words('english')]  # TODO: get words from local file
+        # boolean member that we get from the main
+        #if True we will do a stemmer for each term and if False we not change the term
+        self.UseStemmer=False
 
-    # This function return a list of words(entity) that appears at least in tow document
-    # and remove the words from dict
     def returnEntity(self):
+        """
+        This function return a list of words(entity) that appears at least in tow document
+        and remove the words from dict
+      :param -
+      :return: list of all entity in the corpus
+        """
         res = []
-        entities = []
-        entities += self.entity.keys()
+        entities=[]
+        entities+= self.entity.keys()
         for word in entities:
             if len(self.entity[word].listOfDoc) >= 2:
                 res.append(self.entity[word])
                 self.entity.pop(word)
+        for e in res:
+            self.word_dict[e.text.lower()] = e
         return res
 
     # helper function for nomberTostring-->return 3 digit after the point
@@ -58,53 +67,85 @@ class Parse:
             s = str(num)
             return s + 'B'
 
-    # This function is "cleaning" the word,removing a ,!@$&*....that appear in start/end of word
+    # This function is "cleaning" the word,removing a ,!@$&*... that appear in start/end of word
     def strip_punc(self, word):
         start = 0
         end = len(word) - 1
         while start < len(word) and word[start] in (string.punctuation + '\n\t'):
-            if word[start] == '@' or word[start] == '#': break
+            if word[start] == '@' or word[start] == '#' or word[start]=='"': break
             start += 1
         while end >= 0 and word[end] in string.punctuation:
+            if word[end]=='"': break
             end -= 1
         return word[start:end + 1]
 
+
+    #This function clean the text-->remove if not exsit in ascii table
     def removeEmojify(self, text):
         return text.encode('ascii', 'ignore').decode('ascii')
 
     # Build a tokenize---> split by spaces
     def Tokenize(self, text):  # TODO: add two more rules and names support
         text = self.removeEmojify(text)
-        word_list = [self.strip_punc(self.stemmer.stem_term(word)) for word in text.split()] # creating a list of split word after stemming
+        #word_list = [self.strip_punc(self.stemmer.stem_term(word)) for word in text.split()] # creating a list of split word after stemming
+        word_list=[]
+        for word in text.split():
+            if '"' in word:
+                word_list.append(self.strip_punc(word))
+            else:
+                if self.UseStemmer==True:
+                    word_list.append(self.strip_punc(self.stemmer.stem_term(word)))
+                else:word_list.append(self.strip_punc(word))
         output = []
+
+        #find all the quotes in this doc
+        #re.findall() find all quotes and return a list of quoets without " "
+        quoets = re.findall(r'"(.*?)"', text)
+        for q in quoets:
+            qu='"'+q+'"'
+            output.append(self.add_to_dict(qu))
+
+        #The main loop
         for i in range(len(word_list)):
             word = word_list[i]
-            word2 = ''
             if not word:
                 continue
 
             #find a entity
-            if word_list[i] != '' and  len(word)!=len(word_list) and len(word_list[i]) > 1 and word_list[i][0].isupper():
-                    #collecting the words of entity to one word
+            if word_list[i] != '' and  len(word) != len(word_list) and len(word_list[i]) > 1 :
+                    entity = ''
+                #collecting the words of entity to one word
                     counter = i
-                    while counter<len(word_list) and len(word_list[counter])>1 and word_list[counter][0].isupper() and not word_list[counter][1].isupper():
-                        word2 = word2 + ' ' + word_list[counter]
+                    while counter < len(word_list) and len(word_list[counter]) > 1 and word_list[counter][0].isupper() and not word_list[counter][1].isupper():
+                        entity += word_list[counter]+' '
                         counter += 1
+                    entity = entity[:-1]
 
                     # list_of_entity.append(word[1:])
-                    if word2 == '': continue
+                    #if entity == '': continue
 
-                    if word2 != '':#update the dict of entities
-                        if word2 in self.entity.keys():
-                            self.entity[word2].listOfDoc.add(self.idx)
-                        else:
-                            t = Term(word2)
+                    if entity != '' and len(entity.split()) > 1:#update the dict of entities
+                        if entity not in self.word_dict.keys():
+                            t = Term(entity)
                             t.listOfDoc.add(self.idx)
-                            self.entity[word2] = t
-                        word2 = ''
-                    #if word == word_list[-1]:continue
+                            self.word_dict[entity.lower()]=t
+                            output.append(t)
+                        else:
+                            self.word_dict[entity.lower()].listOfDoc.add(self.idx)
+                            output.append(self.word_dict[entity.lower()])
 
-            if self.isNumber(word):  # TODO: add fraction support
+
+
+                    # if entity in self.entity.keys():
+                    #     self.entity[entity].listOfDoc.add(self.idx) #we will check if len(listofdoc)>=2 after the pares all of corpus
+                    # else:
+                    #     t = Term(entity)
+                    #     t.listOfDoc.add(self.idx)
+                    #     self.entity[entity] = t #key=string entity   value=Term of entity
+                    # entity = ''
+                #if word == word_list[-1]:continue
+
+            if self.isNumber(word):
                 try:  # here we are checking the text by the roles of parse
                     if word[-1] == '%' or word_list[i + 1] == 'percent' or word_list[i + 1] == 'percentag':
                         if word[-1] != '%':
@@ -184,12 +225,17 @@ class Parse:
         :param doc_as_list: list re-preseting the tweet.
         :return: Document object with corresponding fields.
         """
-        #doc_as_list[2] = "@roi i go to Roi Kremer 10 3/7 #mom"
+        #doc_as_list[2] = '@roi i go to Roi Kremer 10 3/7 "#mom" and i "go kinder"'
         self.idx = idx
         out = self.parse_sentence(doc_as_list[2])
+        ##### for check ######
+
         #print(out)
+
         #print(self.word_dict)
-        # print(self.entity)
+        #print(self.entity['Roi Kremer'].numOfDoc)
+
+        ##### for check #######
         return out
 
         # tweet_id = doc_as_list[0]
