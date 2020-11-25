@@ -1,5 +1,4 @@
 import json
-
 import utils
 
 
@@ -10,11 +9,9 @@ class MemoryPosting:
         self.dir = 'tempPost' #name of file of postingfile
 
 
-    ##Creating a new txt file and writing the Data
+    ##Creating a new txt file for posting file and writing the Data
     def Save(self, postingdict ): #TODO: improve protocol
         file = open(f'{self.dir}\\{self.count}.txt','w')
-        # with open(f'{self.dir}\\{self.count}.json', "w+") as file:
-        #     json.dump(postingdict,file,sort_keys=True)
 
         for post in postingdict.keys():
              data = self.createPostData(post,postingdict[post])
@@ -25,6 +22,12 @@ class MemoryPosting:
 
 
     def createPostData(self,term,data):
+        """
+           This function creating the content of each posting file(befor merge)
+           format: term~#(idx,docId,tfi)
+          :param dict invertedindex
+          :return: str list of all the data by the format above
+         """
         output = term.text+'~#'
         for d in data:
             output +='('+str(d.docId)+','+str(d.tweetId)+ ','+str(d.tfi)+')'
@@ -34,6 +37,11 @@ class MemoryPosting:
 
 
     def Merge(self,inverted_index):
+        """
+        This function mergin all the posting file to one file
+        :param dict invertedindex
+        :return: -
+         """
         ## open all files
         files = [open(f'{self.dir}\\{i}.txt','r') for i in range(self.count)]
         merged_file = open(self.postingFile,'w') #the new files of all posting files

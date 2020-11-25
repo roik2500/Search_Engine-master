@@ -3,6 +3,7 @@ class Term:
         self.text = text
         self.numOfInterfaces = 1
         self.numOfDoc = 0  #dfi
+
         self.listOfDoc = set() #only for entity
 
     def __repr__(self):

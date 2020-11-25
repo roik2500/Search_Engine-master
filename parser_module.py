@@ -15,10 +15,17 @@ class Parse:
         self.stemmer = Stemmer()
         self.entity = {}  # dict of entity in corpus key=tern value=number of instances
         self.stop_words = [self.stemmer.stem_term(word) for word in stopwords.words('english')]  # TODO: get words from local file
+        # boolean member that we get from the main
+        #if True we will do a stemmer for each term and if False we not change the term
+        self.UseStemmer=False
 
-    # This function return a list of words(entity) that appears at least in tow document
-    # and remove the words from dict
-    def returnEntity(self): #TODO: need to fix-->make a problem
+    def returnEntity(self):
+        """
+        This function return a list of words(entity) that appears at least in tow document
+        and remove the words from dict
+      :param -
+      :return: list of all entity in the corpus
+        """
         res = []
         entities=[]
         entities+= self.entity.keys()
@@ -60,7 +67,7 @@ class Parse:
             s = str(num)
             return s + 'B'
 
-    # This function is "cleaning" the word,removing a ,!@$&*....that appear in start/end of word
+    # This function is "cleaning" the word,removing a ,!@$&*... that appear in start/end of word
     def strip_punc(self, word):
         start = 0
         end = len(word) - 1
@@ -72,6 +79,8 @@ class Parse:
             end -= 1
         return word[start:end + 1]
 
+
+    #This function clean the text-->remove if not exsit in ascii table
     def removeEmojify(self, text):
         return text.encode('ascii', 'ignore').decode('ascii')
 
@@ -83,11 +92,14 @@ class Parse:
         for word in text.split():
             if '"' in word:
                 word_list.append(self.strip_punc(word))
-            else:word_list.append(self.strip_punc(self.stemmer.stem_term(word)))
-
+            else:
+                if self.UseStemmer==True:
+                    word_list.append(self.strip_punc(self.stemmer.stem_term(word)))
+                else:word_list.append(self.strip_punc(word))
         output = []
 
         #find all the quotes in this doc
+        #re.findall() find all quotes and return a list of quoets without " "
         quoets = re.findall(r'"(.*?)"', text)
         for q in quoets:
             qu='"'+q+'"'
@@ -107,19 +119,20 @@ class Parse:
                     while counter < len(word_list) and len(word_list[counter]) > 1 and word_list[counter][0].isupper() and not word_list[counter][1].isupper():
                         entity += word_list[counter]+' '
                         counter += 1
-                    entity=entity[:-1]
+                    entity = entity[:-1]
+
                     # list_of_entity.append(word[1:])
-                    if entity == '': continue
+                    #if entity == '': continue
 
                     if entity != '' and len(entity.split()) > 1:#update the dict of entities
                         if entity not in self.word_dict.keys():
                             t = Term(entity)
                             t.listOfDoc.add(self.idx)
-                            self.word_dict[entity]=t
+                            self.word_dict[entity.lower()]=t
                             output.append(t)
                         else:
-                            self.word_dict[entity].listOfDoc.add(self.idx)
-                            output.append(self.word_dict[entity])
+                            self.word_dict[entity.lower()].listOfDoc.add(self.idx)
+                            output.append(self.word_dict[entity.lower()])
 
 
 
@@ -132,7 +145,7 @@ class Parse:
                     # entity = ''
                 #if word == word_list[-1]:continue
 
-            if self.isNumber(word):  # TODO: add fraction support
+            if self.isNumber(word):
                 try:  # here we are checking the text by the roles of parse
                     if word[-1] == '%' or word_list[i + 1] == 'percent' or word_list[i + 1] == 'percentag':
                         if word[-1] != '%':

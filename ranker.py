@@ -16,10 +16,10 @@ class Ranker:
         output = []
         for doc in relevant_doc.keys():
             scoreR = 0
-            score=0
+            score = 0
             for term in relevant_doc[doc].keys():
                 score += query_grades[term]*relevant_doc[doc][term]# sim()
-                scoreR += ((math.pow(query_grades[term],2))*(math.pow(query_grades[term],2)))
+                scoreR += ((math.pow(query_grades[term],2))*(math.pow(relevant_doc[doc][term],2)))
             s = score/math.sqrt(scoreR)
             output.append((doc,s))
         return sorted(output, key=lambda item: item[1], reverse=True)
