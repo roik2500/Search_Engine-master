@@ -2,6 +2,7 @@ from parser_module import Parse
 from ranker import Ranker
 import utils
 import pandas as pd
+import time
 
 
 class Searcher:
@@ -64,14 +65,16 @@ class Searcher:
         # postingLists = [self.FindPostingByTerm(term) for term in query]  #list of postingfile -->[idx,tweetid,tfi]
         for term in query:
             try:
-                print('start FindPostingByTerm ')
+                # start_time = time.time()
                 post = self.FindPostingByTerm(term)
+                # print("find posting: {} --- {} seconds ---".format (term,time.time() - start_time))
+                # start_time = time.time()
                 for p in post:
                     tweetId = p[1]
                     if tweetId not in relevant_docs.keys():
                         relevant_docs[tweetId] = {}
-                    for i in range(len(post)):
-                        relevant_docs[tweetId][term] = p[2] * self.inverted_index[term][2]  # wiq
+                    relevant_docs[tweetId][term] = p[2] * self.inverted_index[term][2]  # wiq
+                # print("after posting loop: {} --- {} seconds ---".format(term, time.time() - start_time))
             except:
                 print('term {} not found in posting'.format(term))
 
@@ -127,19 +130,14 @@ class Searcher:
             start = self.inverted_index[term][0]
             size = self.inverted_index[term][1]
             file.seek(start)
-            print('start---file.read(size - 1)')
             data = file.read(size - 1)
-            print('start--split')
             data = data.split('~#')[1]
             data = data[1:-1].split(')(')
-            print('start---[self.read_data(d) for d in data]')
             data = [self.read_data(d) for d in data]
         return data
 
     def read_data(self, data):
-        print('start data split')
         d = data.split(',')
-        print('end split')
         return (int(d[0]), d[1], float(d[2]))
 
 
