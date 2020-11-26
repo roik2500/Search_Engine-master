@@ -106,7 +106,7 @@ def main(corpus_path,output_path,stemming,queries,num_docs_to_retrieve):
     config.DoStemmer = stemming
 
     start_time = time.time()
-    #run_engine(config)
+    run_engine(config)
     #run_engine()
 
     print("--- %s seconds ---" % (time.time() - start_time))

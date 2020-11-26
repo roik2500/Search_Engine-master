@@ -13,9 +13,10 @@ class Indexer:
 
     def addEntityToLastPosting(self):
         for entity in self.entity.keys():
-            if len(entity.listOfDoc) >= 2:
-                self.postingDict[entity] = self.entity[entity]
+            if len(entity.listOfDoc)>=2:
+                self.postingDict[entity]=self.entity[entity]
         return self.postingDict
+
 
     def add_new_doc(self, document, document_index, tweetID):
         """
@@ -42,10 +43,9 @@ class Indexer:
         sigma = 0
         for word in postings.keys():
             postings[word].tfi = postings[word].tfi / max_term  ## tfij=fij/max{fj}
-            if word.isentity():
-                pd = self.entity
-            else:
-                pd = self.postingDict
+            sigma += postings[word].tfi**2
+            if word.isentity():pd=self.entity
+            else:pd=self.postingDict
             if word in pd.keys():
                 pd[word].append(postings[word])
             else:
