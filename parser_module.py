@@ -13,7 +13,7 @@ class Parse:
         self.word_dict = {}
         self.stemmer = Stemmer()
         self.stop_words = [self.stemmer.stem_term(word) for word in stopwords.words('english')] + [
-            'rt']  # TODO: get words from local file
+            'rt', 't.co']  # TODO: get words from local file
 
         # boolean member that we get from the main
         # if True we will do a stemmer for each term and if False we not change the term
@@ -223,8 +223,16 @@ class Parse:
         url_map = json.loads(document[3])
         url_indices = json.loads(document[4])
         full_text = document[2]
+        offset = 0
         for index in url_indices:
-            full_text = full_text[:index[0]] + url_map[full_text[index[0]:index[1]]] + full_text[index[1]:]
+            try:
+                new_offset = offset + len(url_map[full_text[(index[0] + offset):(index[1] + offset)]]) - index[1] + \
+                             index[0]
+                full_text = full_text[:(index[0] + offset)] + url_map[
+                    full_text[(index[0] + offset):(index[1] + offset)]] + full_text[(index[1] + offset):]
+                offset = new_offset
+            except:
+                pass
         document[2] = full_text
 
 
@@ -244,7 +252,7 @@ class Parse:
         :param doc_as_list: list re-preseting the tweet.
         :return: Document object with corresponding fields.
         """
-        # self.extendURLs(doc_as_list)
+        self.extendURLs(doc_as_list)
 
         self.idx = idx
 
