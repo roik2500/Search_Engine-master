@@ -1,11 +1,10 @@
 import math
 import string
 from nltk.corpus import stopwords
-from document import Document
 from Term import Term
-from nltk.stem import PorterStemmer
 from stemmer import Stemmer
 import re
+import json
 
 
 class Parse:
@@ -13,11 +12,12 @@ class Parse:
         self.idx = 0
         self.word_dict = {}
         self.stemmer = Stemmer()
-        self.stop_words = [self.stemmer.stem_term(word) for word in stopwords.words('english')]+['rt']  # TODO: get words from local file
+        self.stop_words = [self.stemmer.stem_term(word) for word in stopwords.words('english')] + [
+            'rt']  # TODO: get words from local file
 
         # boolean member that we get from the main
-        #if True we will do a stemmer for each term and if False we not change the term
-        self.UseStemmer=False
+        # if True we will do a stemmer for each term and if False we not change the term
+        self.UseStemmer = False
 
     def returnEntity(self):
         """
@@ -27,12 +27,12 @@ class Parse:
       :return: list of all entity in the corpus
         """
         res = []
-        entities=[]
-        entities+= self.entity.keys()
+        entities = []
+        entities += self.entity.keys()
         for word in entities:
             if len(self.entity[word].listOfDoc) >= 2:
                 res.append(self.entity[word])
-                #self.entity.pop(word)
+                # self.entity.pop(word)
         for e in res:
             self.word_dict[e.text.lower()] = e
         return res
@@ -74,77 +74,77 @@ class Parse:
         start = 0
         end = len(word) - 1
         while start < len(word) and word[start] in (string.punctuation + '\n\t'):
-            if word[start] == '@' or word[start] == '#' or word[start]=='"': break
+            if word[start] == '@' or word[start] == '#' or word[start] == '"': break
             start += 1
         while end >= 0 and word[end] in string.punctuation:
             if word[end]=='"' or word[end]=='$': break
             end -= 1
         return word[start:end + 1]
 
-
-    #This function clean the text-->remove if not exsit in ascii table
+    # This function clean the text-->remove if not exsit in ascii table
     def removeEmojify(self, text):
         return text.encode('ascii', 'ignore').decode('ascii')
 
     # Build a tokenize---> split by spaces
     def Tokenize(self, text):  # TODO: add two more rules and names support
         text = self.removeEmojify(text)
-        #word_list = [self.strip_punc(self.stemmer.stem_term(word)) for word in text.split()] # creating a list of split word after stemming
-        word_list=[]
+        # word_list = [self.strip_punc(self.stemmer.stem_term(word)) for word in text.split()] # creating a list of split word after stemming
+        word_list = []
         for word in text.split():
             if '"' in word:
                 word_list.append(self.strip_punc(word))
             else:
-                if self.UseStemmer==True:
+                if self.UseStemmer == True:
                     word_list.append(self.strip_punc(self.stemmer.stem_term(word)))
-                else:word_list.append(self.strip_punc(word))
+                else:
+                    word_list.append(self.strip_punc(word))
         output = []
 
-        #find all the quotes in this doc
-        #re.findall() find all quotes and return a list of quoets without " "
+        # find all the quotes in this doc
+        # re.findall() find all quotes and return a list of quoets without " "
         quoets = re.findall(r'"(.*?)"', text)
         for q in quoets:
-            qu='"'+q+'"'
+            qu = '"' + q + '"'
             output.append(self.add_to_dict(qu))
 
-
-        #The main loop
+        # The main loop
         for i in range(len(word_list)):
             word = word_list[i]
             if not word:
                 continue
 
-            #find a entity
-            if word_list[i] != '' and  len(word) != len(word_list) and len(word_list[i]) > 1 :
-                    entity = ''
-                #collecting the words of entity to one word
-                    counter = i
-                    while counter < len(word_list) and len(word_list[counter]) > 1 and word_list[counter][0].isupper() and not word_list[counter][1].isupper():
-                        entity += word_list[counter]+' '
-                        counter += 1
-                    entity = entity[:-1]
+            # find a entity
+            if word_list[i] != '' and len(word) != len(word_list) and len(word_list[i]) > 1:
+                entity = ''
+                # collecting the words of entity to one word
+                counter = i
+                while counter < len(word_list) and len(word_list[counter]) > 1 and word_list[counter][
+                    0].isupper() and not word_list[counter][1].isupper():
+                    entity += word_list[counter] + ' '
+                    counter += 1
+                entity = entity[:-1]
 
-                    # list_of_entity.append(word[1:])
-                    #if entity == '': continue
+                # list_of_entity.append(word[1:])
+                # if entity == '': continue
 
-                    if entity != '' and len(entity.split()) > 1:#update the dict of entities
-                        if entity not in self.word_dict.keys():
-                            t = Term(entity)
-                            t.listOfDoc.add(self.idx)
-                            self.word_dict[entity.lower()]=t
-                            output.append(t)
-                        else:
-                            self.word_dict[entity.lower()].listOfDoc.add(self.idx)
-                            output.append(self.word_dict[entity.lower()])
+                if entity != '' and len(entity.split()) > 1:  # update the dict of entities
+                    if entity not in self.word_dict.keys():
+                        t = Term(entity)
+                        t.listOfDoc.add(self.idx)
+                        self.word_dict[entity.lower()] = t
+                        output.append(t)
+                    else:
+                        self.word_dict[entity.lower()].listOfDoc.add(self.idx)
+                        output.append(self.word_dict[entity.lower()])
 
-                    # if entity in self.entity.keys():
-                    #     self.entity[entity].listOfDoc.add(self.idx) #we will check if len(listofdoc)>=2 after the pares all of corpus
-                    # else:
-                    #     t = Term(entity)
-                    #     t.listOfDoc.add(self.idx)
-                    #     self.entity[entity] = t #key=string entity   value=Term of entity
-                    # entity = ''
-                #if word == word_list[-1]:continue
+                # if entity in self.entity.keys():
+                #     self.entity[entity].listOfDoc.add(self.idx) #we will check if len(listofdoc)>=2 after the pares all of corpus
+                # else:
+                #     t = Term(entity)
+                #     t.listOfDoc.add(self.idx)
+                #     self.entity[entity] = t #key=string entity   value=Term of entity
+                # entity = ''
+            # if word == word_list[-1]:continue
 
             if self.isNumber(word):
                 try:  # here we are checking the text by the roles of parse
@@ -195,7 +195,6 @@ class Parse:
                 output.append(self.add_to_dict(word))
         return output
 
-
     def add_to_dict(self, word):
         low_case = word.lower()
         if low_case in self.word_dict.keys():
@@ -220,6 +219,15 @@ class Parse:
     def URL(self, text):
         return [v for v in re.split('[://]|[/?]|[/]|[=]', text) if v]
 
+    def extendURLs(self, document):
+        url_map = json.loads(document[3])
+        url_indices = json.loads(document[4])
+        full_text = document[2]
+        for index in url_indices:
+            full_text = full_text[:index[0]] + url_map[full_text[index[0]:index[1]]] + full_text[index[1]:]
+        document[2] = full_text
+
+
     def parse_sentence(self, text):
         """
         This function tokenize, remove stop words and apply lower case for every word within the text
@@ -230,26 +238,25 @@ class Parse:
         text_tokens = [token for token in self.Tokenize(text) if token.text.lower() not in self.stop_words]
         return text_tokens
 
-    def parse_doc(self, doc_as_list,idx=None):
+    def parse_doc(self, doc_as_list, idx=None):
         """
         This function takes a tweet document as list and break it into different fields
         :param doc_as_list: list re-preseting the tweet.
         :return: Document object with corresponding fields.
         """
-        #doc_as_list[2] = '@roi i. go 4 $ to Roi Kremer 10 3/7 "#mom" and i "go kinder"'
+        # self.extendURLs(doc_as_list)
+
         self.idx = idx
 
         out = self.parse_sentence(doc_as_list[2])
 
-
-
-        #out+=self.parse_sentence(doc_as_list[3])
+        # out+=self.parse_sentence(doc_as_list[3])
         ##### for check ######
 
-        #print(out)
+        # print(out)
 
-        #print(self.word_dict)
-        #print(self.entity['Roi Kremer'].numOfDoc)
+        # print(self.word_dict)
+        # print(self.entity['Roi Kremer'].numOfDoc)
 
         ##### for check #######
         return out
