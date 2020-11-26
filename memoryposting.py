@@ -4,7 +4,7 @@ import utils
 
 class MemoryPosting:
     def __init__(self,postingFile):
-        self.postingFile=postingFile
+        self.postingFile = postingFile
         self.count = 0
         self.dir = 'tempPost' #name of file of postingfile
 

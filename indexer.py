@@ -9,30 +9,37 @@ class Indexer:
         self.inverted_idx = {}  ## key=term    value=( numOfDoc , TotalnumberInCorpus ,pointerToPosting )
         self.postingDict = {}   ##key=term     value=postingd
         self.global_Table = {}  ##key=term_1     value={term_2:score}
+        self.entity={}
+
+
+    def addEntityToLastPosting(self):
+        for entity in self.entity.keys():
+            if len(entity.listOfDoc)>=2:
+                self.postingDict[entity]=self.entity[entity]
+        return self.postingDict
+
+
+
+
+
 
     def add_new_doc(self, document, document_index, tweetID):
         """
+        a b (c d ) e (f g ) i
+        [a,b,[c,d],e,[f,g],i]
         This function perform indexing process for a document list.
         Saved information is captures via two dictionaries ('inverted index' and 'posting')
         :param document:list of term (object term),int document_index (docId), int tweetid
         :return: -void
         """
+
         # Go over each term in the doc
         #this structur include a postingbyTerm object
         postings = {}   ##key=term  value=(docID,tweetID,tf,tfi)
-
         max_term = 0  # number of maximum  word interfaces per doc
-
         self.addTOGlobalMethod(document)
-
         # document=updateDocByEntity
         for word in document:
-
-            if word.isentity():
-                if len(word.listOfDoc) < 2:
-                    document.remove(word)
-                    continue
-
             if word in postings.keys():
                 postings[word].tfi += 1
             else:  # first doc of this word
@@ -42,11 +49,12 @@ class Indexer:
 
         for word in postings.keys():
             postings[word].tfi = postings[word].tfi / max_term  ## tfij=fij/max{fj}
-            if word in self.postingDict.keys():
-                self.postingDict[word].append(postings[word])
+            if word.isentity():pd=self.entity
+            else:pd=self.postingDict
+            if word in pd.keys():
+                pd[word].append(postings[word])
             else:
-                self.postingDict[word] = [postings[word]]
-
+                pd[word] = [postings[word]]
 
 
     def  addTOGlobalMethod(self,Document):
@@ -70,6 +78,7 @@ class Indexer:
         self.inverted_idx = {} ##key:str name value: start,size,idfi=log(N/dfi)
         N = idx+1
         for word in word_dict.keys():
+            if word_dict[word].isentity() and len(word_dict[word].listOfDoc) < 2: continue
             if word_dict[word].numOfDoc == 0:
                 continue
             self.inverted_idx[word] = [-1,-1,math.log2(N/word_dict[word].numOfDoc),self.BestFourWord(word_dict[word])]

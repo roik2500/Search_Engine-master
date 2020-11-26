@@ -1,8 +1,6 @@
 from parser_module import Parse
 from ranker import Ranker
 import utils
-import pandas as pd
-import time
 
 
 class Searcher:
@@ -67,8 +65,6 @@ class Searcher:
             try:
                 # start_time = time.time()
                 post = self.FindPostingByTerm(term)
-                # print("find posting: {} --- {} seconds ---".format (term,time.time() - start_time))
-                # start_time = time.time()
                 for p in post:
                     tweetId = p[1]
                     if tweetId not in relevant_docs.keys():
