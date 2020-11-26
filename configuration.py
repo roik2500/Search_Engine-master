@@ -1,6 +1,14 @@
 class ConfigClass:
     def __init__(self):
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
         self.corpusPath = r'..\Dataa'
+=======
+        self.corpusPath = r'../Data'
+>>>>>>> Stashed changes
+=======
+        self.corpusPath = r'../Data'
+>>>>>>> Stashed changes
         self.savedFileMainFolder = ''
         self.saveFilesWithStem = self.savedFileMainFolder + "/WithStem"
         self.saveFilesWithoutStem = self.savedFileMainFolder + "/WithoutStem"
