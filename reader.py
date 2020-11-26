@@ -20,7 +20,11 @@ class ReadFile:
 
 # iter for read from document
     def __iter__(self):
-        self.file_list = [file for file in os.listdir(self.corpus_path) if file.endswith(".parquet")]
+        self.file_list = []
+        for root, dirs, files in os.walk(self.corpus_path):
+            for name in files:
+                if name.endswith(".parquet"):
+                    self.file_list.append(os.path.join(root, name))
         self.n = 0
         return self
 

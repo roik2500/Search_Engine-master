@@ -10,11 +10,11 @@ import re
 
 class Parse:
     def __init__(self):
-        self.idx=0
+        self.idx = 0
         self.word_dict = {}
         self.stemmer = Stemmer()
-        self.entity = {}  # dict of entity in corpus key=tern value=number of instances
-        self.stop_words = [self.stemmer.stem_term(word) for word in stopwords.words('english')]  # TODO: get words from local file
+        self.stop_words = [self.stemmer.stem_term(word) for word in stopwords.words('english')]+['rt']  # TODO: get words from local file
+
         # boolean member that we get from the main
         #if True we will do a stemmer for each term and if False we not change the term
         self.UseStemmer=False
@@ -32,7 +32,7 @@ class Parse:
         for word in entities:
             if len(self.entity[word].listOfDoc) >= 2:
                 res.append(self.entity[word])
-                self.entity.pop(word)
+                #self.entity.pop(word)
         for e in res:
             self.word_dict[e.text.lower()] = e
         return res
@@ -105,6 +105,7 @@ class Parse:
             qu='"'+q+'"'
             output.append(self.add_to_dict(qu))
 
+
         #The main loop
         for i in range(len(word_list)):
             word = word_list[i]
@@ -133,8 +134,6 @@ class Parse:
                         else:
                             self.word_dict[entity.lower()].listOfDoc.add(self.idx)
                             output.append(self.word_dict[entity.lower()])
-
-
 
                     # if entity in self.entity.keys():
                     #     self.entity[entity].listOfDoc.add(self.idx) #we will check if len(listofdoc)>=2 after the pares all of corpus
@@ -216,6 +215,7 @@ class Parse:
         :param text:
         :return:
         """
+
         text_tokens = [token for token in self.Tokenize(text) if token.text.lower() not in self.stop_words]
         return text_tokens
 
@@ -225,9 +225,14 @@ class Parse:
         :param doc_as_list: list re-preseting the tweet.
         :return: Document object with corresponding fields.
         """
-        #doc_as_list[2] = '@roi i go to Roi Kremer 10 3/7 "#mom" and i "go kinder"'
+        doc_as_list[2] = '@roi i. (go to) Roi Kremer 10 3/7 "#mom" and i "go kinder"'
         self.idx = idx
+
         out = self.parse_sentence(doc_as_list[2])
+
+
+
+        #out+=self.parse_sentence(doc_as_list[3])
         ##### for check ######
 
         #print(out)

@@ -8,7 +8,7 @@ from searcher import Searcher
 import utils
 
 
-def run_engine():
+def run_engine(config):
     """
     :return:
     """
@@ -44,8 +44,11 @@ def run_engine():
         if idx == 100000:
             break
 
-    inv_index = indexer.CreatInvertedIndex(p.word_dict, idx)
+    m.Save(indexer.addEntityToLastPosting())
 
+
+
+    inv_index = indexer.CreatInvertedIndex(p.word_dict, idx)
     print('Finished parsing and indexing. Starting to export files')
     m.Merge(inv_index)
     utils.save_obj(inv_index, 'inverted_idx')
@@ -93,32 +96,36 @@ def search_and_rank_query(query, inverted_index, k):
     return output
 
 
-# def main(corpus_path,output_path,stemming,queries,num_docs_to_retrieve):
-def main():
-    # config.set__corpusPath(corpus_path)
-    # config.set__output_path(output_path)
-    # config.DoStemmer = stemming
-    # readqueryfromfile(queries)
-    # ReadQueryFromFile('queries.txt')
+def main(corpus_path,output_path,stemming,queries,num_docs_to_retrieve):
+#def main():
+    config = ConfigClass()
+    config.set__corpusPath(corpus_path)
+    config.set__output_path(output_path)
+    config.DoStemmer = stemming
+
     start_time = time.time()
-    # run_engine(config)
-    # run_engine()
+    run_engine(config)
+    #run_engine()
 
     print("--- %s seconds ---" % (time.time() - start_time))
 
-    query = input("Please enter a query: ")
-    k = int(input("Please enter number of docs to retrieve: "))
+    #query = input("Please enter a query: ")
+    #k = int(input("Please enter number of docs to retrieve: "))
     start_time = time.time()
     inverted_index = load_index()
     print("inverted index load --- %s seconds ---" % (time.time() - start_time))
 
-    for doc_tuple in search_and_rank_query(query, inverted_index, k):
-        print('tweet id: {}, score (unique common words with query): {}'.format(doc_tuple[0], doc_tuple[1]))
+    if not isinstance(queries,list):
+        queries = ReadQueryFromFile(queries)
+    for q in queries:
+        for doc_tuple in search_and_rank_query(q, inverted_index, num_docs_to_retrieve):
+            print('tweet id: {}, score : {}'.format(doc_tuple[0], doc_tuple[1]))
 
 
 def ReadQueryFromFile(queries_file):  # TODO: implement
     """
     This function recived a file of queries and return a list of queries that any index in list is query
+    :param queries_file:
     :param queries.txt
     :return:list of queries
     """
@@ -126,6 +133,7 @@ def ReadQueryFromFile(queries_file):  # TODO: implement
     queries = []
     lines = file.readlines()
     for line in lines:
-        queries.append(lines[2:-1])
+        if line == '\n':continue
+        queries.append(line[(line.find('.')+1):].strip('\n'))
     file.close()
     return queries
