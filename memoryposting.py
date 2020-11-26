@@ -1,5 +1,4 @@
-import json
-import utils
+import os
 
 
 class MemoryPosting:
@@ -7,6 +6,8 @@ class MemoryPosting:
         self.postingFile = postingFile
         self.count = 0
         self.dir = 'tempPost' #name of file of postingfile
+        if not os.path.exists(self.dir):
+            os.makedirs(self.dir)
 
 
     ##Creating a new txt file for posting file and writing the Data
@@ -64,7 +65,7 @@ class MemoryPosting:
                 new_line += '\n'
                 inverted_index[term.lower()][0] = curroffset
                 inverted_index[term.lower()][1] = merged_file.write(new_line)
-                curroffset += inverted_index[term.lower()][1]+1
+                curroffset += inverted_index[term.lower()][1] + 1
         for file in files:
             file.close()
         merged_file.close()
