@@ -97,7 +97,7 @@ def search_and_rank_query(query, inverted_index, k):
 
 
 def main(corpus_path,output_path,stemming,queries,num_docs_to_retrieve):
-#def main():
+# def main():
     config = ConfigClass()
     config.set__corpusPath(corpus_path)
     config.set__output_path(output_path)
@@ -122,7 +122,7 @@ def main(corpus_path,output_path,stemming,queries,num_docs_to_retrieve):
             print('tweet id: {}, score : {}'.format(doc_tuple[0], doc_tuple[1]))
 
 
-def ReadQueryFromFile(queries_file):  # TODO: implement
+def ReadQueryFromFile(queries_file):
     """
     This function recived a file of queries and return a list of queries that any index in list is query
     :param queries_file:

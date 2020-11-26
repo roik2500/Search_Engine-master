@@ -1,11 +1,10 @@
 import math
 import string
 from nltk.corpus import stopwords
-from document import Document
 from Term import Term
-from nltk.stem import PorterStemmer
 from stemmer import Stemmer
 import re
+import json
 
 
 class Parse:
@@ -209,6 +208,15 @@ class Parse:
     def URL(self, text):
         return [v for v in re.split('[://]|[/?]|[/]|[=]', text) if v]
 
+    def extendURLs(self, document):
+        url_map = json.loads(document[3])
+        url_indices = json.loads(document[4])
+        full_text = document[2]
+        for index in url_indices:
+            full_text = full_text[:index[0]] + url_map[full_text[index[0]:index[1]]] + full_text[index[1]:]
+        document[2] = full_text
+
+
     def parse_sentence(self, text):
         """
         This function tokenize, remove stop words and apply lower case for every word within the text
@@ -225,7 +233,8 @@ class Parse:
         :param doc_as_list: list re-preseting the tweet.
         :return: Document object with corresponding fields.
         """
-        doc_as_list[2] = '@roi i. (go to) Roi Kremer 10 3/7 "#mom" and i "go kinder"'
+        self.extendURLs(doc_as_list)
+
         self.idx = idx
 
         out = self.parse_sentence(doc_as_list[2])
