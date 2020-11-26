@@ -3,5 +3,5 @@
 __pycache__
 tempPost
 venv
-posting_dictionary.txt
 *.pkl
+*.txt

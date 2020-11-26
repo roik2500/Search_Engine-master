@@ -95,7 +95,6 @@ def search_and_rank_query(query, inverted_index, k):
 
 # def main(corpus_path,output_path,stemming,queries,num_docs_to_retrieve):
 def main():
-    config = ConfigClass()
     # config.set__corpusPath(corpus_path)
     # config.set__output_path(output_path)
     # config.DoStemmer = stemming
