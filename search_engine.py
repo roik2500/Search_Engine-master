@@ -37,13 +37,15 @@ def run_engine(config):
 
             # index the document data
             indexer.add_new_doc(parsed_list, idx, document[0])
+            print(idx)
             idx += 1
+
             if idx % maxpostingsize == 0:
                 m.Save(indexer.postingDict)
 
-            if idx == 10000:
+            if idx == 200000:
                 break
-        if idx == 10000:
+        if idx == 200000:
             break
 
     m.Save(indexer.addEntityToLastPosting())
@@ -107,7 +109,7 @@ def main(corpus_path,output_path,stemming,queries,num_docs_to_retrieve):
     config.DoStemmer = stemming
 
     start_time = time.time()
-    run_engine(config)
+    #run_engine(config)
     #run_engine()
 
     print("--- %s seconds ---" % (time.time() - start_time))
@@ -121,6 +123,7 @@ def main(corpus_path,output_path,stemming,queries,num_docs_to_retrieve):
     if not isinstance(queries,list):
         queries = ReadQueryFromFile(queries)
     for q in queries:
+        print(q)
         for doc_tuple in search_and_rank_query(q, inverted_index, num_docs_to_retrieve):
             print('tweet id: {}, score : {}'.format(doc_tuple[0], doc_tuple[1]))
 

@@ -50,7 +50,6 @@ class Searcher:
                 output[word] = (output[word]*0.7 / maxterm) * self.inverted_index[word][2]
             else:
                 output[word] = (output[word] / maxterm) * self.inverted_index[word][2]  # wiq=tf*idf
-
         return output
 
     def relevant_docs_from_posting(self, query):

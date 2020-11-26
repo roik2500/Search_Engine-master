@@ -25,8 +25,6 @@ class Indexer:
 
     def add_new_doc(self, document, document_index, tweetID):
         """
-        a b (c d ) e (f g ) i
-        [a,b,[c,d],e,[f,g],i]
         This function perform indexing process for a document list.
         Saved information is captures via two dictionaries ('inverted index' and 'posting')
         :param document:list of term (object term),int document_index (docId), int tweetid
@@ -47,14 +45,20 @@ class Indexer:
                 postings[word] = PostingbyTerm(document_index,tweetID)
             max_term = max(max_term, postings[word].tfi)
 
+        sigma = 0
         for word in postings.keys():
             postings[word].tfi = postings[word].tfi / max_term  ## tfij=fij/max{fj}
+            sigma += postings[word].tfi**2
             if word.isentity():pd=self.entity
             else:pd=self.postingDict
             if word in pd.keys():
                 pd[word].append(postings[word])
             else:
                 pd[word] = [postings[word]]
+
+        if sigma !=0:sigma = 1/math.sqrt(sigma)
+        for word in postings.keys():
+             postings[word] *= sigma
 
 
     def  addTOGlobalMethod(self,Document):

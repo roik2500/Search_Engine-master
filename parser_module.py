@@ -69,13 +69,15 @@ class Parse:
 
     # This function is "cleaning" the word,removing a ,!@$&*... that appear in start/end of word
     def strip_punc(self, word):
+        if word=='$':
+            return word
         start = 0
         end = len(word) - 1
         while start < len(word) and word[start] in (string.punctuation + '\n\t'):
             if word[start] == '@' or word[start] == '#' or word[start]=='"': break
             start += 1
         while end >= 0 and word[end] in string.punctuation:
-            if word[end]=='"': break
+            if word[end]=='"' or word[end]=='$': break
             end -= 1
         return word[start:end + 1]
 
@@ -150,6 +152,15 @@ class Parse:
                         if word[-1] != '%':
                             i += 1
                             word = word + '%'
+
+
+                    if word_list[i+1] == '$':
+                        w_1 = word+word_list[i+1]
+                        w_2 = word+' '+word_list[i+1]
+                        output.append(self.add_to_dict(w_1))
+                        output.append(self.add_to_dict(w_2))
+
+
                     # check if the number is acctualy sperate to 2 word: 35 3/5
                     elif self.isNumber(word) and self.isNumber(word_list[i + 1]) and word_list[i + 1].__contains__('/'):
                         word += ' ' + word_list[i + 1]
@@ -225,7 +236,7 @@ class Parse:
         :param doc_as_list: list re-preseting the tweet.
         :return: Document object with corresponding fields.
         """
-        doc_as_list[2] = '@roi i. (go to) Roi Kremer 10 3/7 "#mom" and i "go kinder"'
+        #doc_as_list[2] = '@roi i. go 4 $ to Roi Kremer 10 3/7 "#mom" and i "go kinder"'
         self.idx = idx
 
         out = self.parse_sentence(doc_as_list[2])
