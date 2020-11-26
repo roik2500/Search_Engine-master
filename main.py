@@ -4,7 +4,7 @@ if __name__ == '__main__':
     corpus_path= r'..\Dataa'
     output_path=''
     stemming = True
-    #queries = 'queries.txt'
+    # queries = 'queries.txt'
     queries = ['donald trump']
 
     num_docs_to_retrieve = 5

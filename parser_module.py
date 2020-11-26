@@ -244,7 +244,7 @@ class Parse:
         :param doc_as_list: list re-preseting the tweet.
         :return: Document object with corresponding fields.
         """
-        self.extendURLs(doc_as_list)
+        # self.extendURLs(doc_as_list)
 
         self.idx = idx
 

@@ -35,15 +35,15 @@ def run_engine(config):
 
             # index the document data
             indexer.add_new_doc(parsed_list, idx, document[0])
-            print(idx)
+            # print(idx)
             idx += 1
 
             if idx % maxpostingsize == 0:
                 m.Save(indexer.postingDict)
 
-            if idx == 100000:
+            if idx == 10000:
                 break
-        if idx == 100000:
+        if idx == 10000:
             break
 
     m.Save(indexer.addEntityToLastPosting())

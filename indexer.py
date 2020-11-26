@@ -51,9 +51,9 @@ class Indexer:
             else:
                 pd[word] = [postings[word]]
 
-        if sigma !=0:sigma = 1/math.sqrt(sigma)
+        if sigma !=0: sigma = 1/math.sqrt(sigma)
         for word in postings.keys():
-             postings[word] *= sigma
+             postings[word].tfi *= sigma
 
 
     def addTOGlobalMethod(self, Document):
