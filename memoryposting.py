@@ -68,6 +68,7 @@ class MemoryPosting:
                 curroffset += inverted_index[term.lower()][1] + 1
         for file in files:
             file.close()
+            os.remove(file.name)
         merged_file.close()
 
 
