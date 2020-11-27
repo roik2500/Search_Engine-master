@@ -1,5 +1,4 @@
-import json
-import utils
+import os
 
 
 class MemoryPosting:
@@ -7,11 +6,13 @@ class MemoryPosting:
         self.postingFile = postingFile
         self.count = 0
         self.dir = 'tempPost' #name of file of postingfile
+        if not os.path.exists(self.dir):
+            os.makedirs(self.dir)
 
 
     ##Creating a new txt file for posting file and writing the Data
     def Save(self, postingdict ): #TODO: improve protocol
-        file = open(f'{self.dir}\\{self.count}.txt','w')
+        file = open(f'{self.dir}/{self.count}.txt','w')
 
         for post in postingdict.keys():
              data = self.createPostData(post,postingdict[post])
@@ -43,7 +44,7 @@ class MemoryPosting:
         :return: -
          """
         ## open all files
-        files = [open(f'{self.dir}\\{i}.txt','r') for i in range(self.count)]
+        files = [open(f'{self.dir}/{i}.txt','r') for i in range(self.count)]
         merged_file = open(self.postingFile,'w') #the new files of all posting files
         curroffset = 0
         all_done = False
@@ -64,7 +65,7 @@ class MemoryPosting:
                 new_line += '\n'
                 inverted_index[term.lower()][0] = curroffset
                 inverted_index[term.lower()][1] = merged_file.write(new_line)
-                curroffset += inverted_index[term.lower()][1]+1
+                curroffset += inverted_index[term.lower()][1] + 1
         for file in files:
             file.close()
         merged_file.close()

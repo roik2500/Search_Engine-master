@@ -1,7 +1,7 @@
 import search_engine
 
 if __name__ == '__main__':
-    corpus_path= r'..\Dataa'
+    corpus_path= r'../Data'
     output_path=''
     stemming = True
     # queries = 'queries.txt'

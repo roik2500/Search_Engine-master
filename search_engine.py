@@ -12,7 +12,6 @@ def run_engine(config):
     """
     :return:
     """
-    number_of_documents = 0
     config = ConfigClass()
     r = ReadFile(corpus_path=config.get__corpusPath())
     p = Parse()
