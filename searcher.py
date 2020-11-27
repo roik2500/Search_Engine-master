@@ -72,7 +72,6 @@ class Searcher:
                 # print("after posting loop: {} --- {} seconds ---".format(term, time.time() - start_time))
             except:
                 print('term {} not found in posting'.format(term))
-
         return relevant_docs
 
         # query_size = len(query)
@@ -117,11 +116,10 @@ class Searcher:
 
     def FindPostingByTerm(self, term):
         if term not in self.inverted_index.keys():
-            print("the term not in inverted index ".format(term))
+            print("the term {} not in inverted index ".format(term))
             return None
         data = None
         with open(self.postingfile, 'r') as file:
-            inv = self.inverted_index
             start = self.inverted_index[term][0]
             size = self.inverted_index[term][1]
             file.seek(start)
