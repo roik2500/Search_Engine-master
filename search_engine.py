@@ -6,6 +6,7 @@ from parser_module import Parse
 from indexer import Indexer
 from searcher import Searcher
 import utils
+import os
 
 
 def run_engine(config):
@@ -20,9 +21,25 @@ def run_engine(config):
     indexer = Indexer(config)
     maxpostingsize = 1000
 
+    os.remove(config.PostingFile)
+
+    parse_limit = -1
+
+    limit_input = input('Number of tweets to index:')
+    while True:
+        if limit_input == '':
+            break
+        try:
+            parse_limit = int(limit_input)
+            break
+        except:
+            print('Wrong Input')
+            limit_input = input('Number of tweets to index:')
+
     # Iterate over every document in the file
     idx = 0
     for documents_list in r:
+        step = 1/len(documents_list)
         for document in documents_list:
             # print(document)
             # parse the document
@@ -39,10 +56,11 @@ def run_engine(config):
 
             if idx % maxpostingsize == 0:
                 m.Save(indexer.postingDict)
+            r.progressbar.update(step)
 
-            if idx == 10000:
+            if idx == parse_limit:
                 break
-        if idx == 10000:
+        if idx == parse_limit:
             break
 
     m.Save(indexer.addEntityToLastPosting())
@@ -105,7 +123,13 @@ def main(corpus_path,output_path,stemming,queries,num_docs_to_retrieve):
     config.DoStemmer = stemming
 
     start_time = time.time()
-    run_engine(config)
+
+    rebuild_index = input("Rebuild Index?[Y,n]")
+    while rebuild_index.lower() not in ['','y','n']:
+        print('Wrong Input')
+        rebuild_index = input("Rebuild Index?[Y,n]")
+    if rebuild_index == '' or rebuild_index.lower()=='y':
+        run_engine(config)
     #run_engine()
 
     print("--- %s seconds ---" % (time.time() - start_time))
@@ -116,12 +140,18 @@ def main(corpus_path,output_path,stemming,queries,num_docs_to_retrieve):
     inverted_index = load_index()
     print("inverted index load --- %s seconds ---" % (time.time() - start_time))
 
-    if not isinstance(queries,list):
-        queries = ReadQueryFromFile(queries)
-    for q in queries:
-        print(q)
-        for doc_tuple in search_and_rank_query(q, inverted_index, num_docs_to_retrieve):
-            print('tweet id: {}, score : {}'.format(doc_tuple[0], doc_tuple[1]))
+    if queries == '':
+        while True:
+            q = input("query: ")
+            for doc_tuple in search_and_rank_query(q, inverted_index, num_docs_to_retrieve):
+                print('tweet id: {}, score : {}'.format(doc_tuple[0], doc_tuple[1]))
+    else:
+        if not isinstance(queries,list):
+            queries = ReadQueryFromFile(queries)
+        for q in queries:
+            print(q)
+            for doc_tuple in search_and_rank_query(q, inverted_index, num_docs_to_retrieve):
+                print('tweet id: {}, score : {}'.format(doc_tuple[0], doc_tuple[1]))
 
 
 def ReadQueryFromFile(queries_file):

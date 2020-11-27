@@ -1,10 +1,12 @@
 import os
 import pandas as pd
 import glob2
+from tqdm import tqdm
 
 class ReadFile:
     def __init__(self, corpus_path):
         self.corpus_path = corpus_path
+        self.progressbar = None
 
     def read_file(self, file_name):
         """
@@ -25,6 +27,8 @@ class ReadFile:
             for name in files:
                 if name.endswith(".parquet"):
                     self.file_list.append(os.path.join(root, name))
+        self.file_list.sort()
+        self.progressbar = tqdm(total=len(self.file_list))
         self.n = 0
         return self
 
