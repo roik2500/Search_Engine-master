@@ -19,7 +19,7 @@ def run_engine(config):
     p.UseStemmer = config.DoStemmer
     m = MemoryPosting(config.PostingFile)
     indexer = Indexer(config)
-    maxpostingsize = 1000
+    maxpostingsize = 10000
 
     os.remove(config.PostingFile)
 

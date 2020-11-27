@@ -102,7 +102,7 @@ class Parse:
 
         # find all the quotes in this doc
         # re.findall() find all quotes and return a list of quoets without " "
-        quoets = re.findall(r'"(.*?)"', text)
+        quoets = [quoet.replace('\n',' ') for quoet in re.findall(r'"(.*?)"', text)]
         for q in quoets:
             qu = '"' + q + '"'
             output.append(self.add_to_dict(qu))
