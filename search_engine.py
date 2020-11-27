@@ -62,7 +62,7 @@ def run_engine(config):
                 break
         if idx == parse_limit:
             break
-
+    r.progressbar.close()
     m.Save(indexer.addEntityToLastPosting())
 
 
