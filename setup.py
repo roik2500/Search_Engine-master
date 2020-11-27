@@ -8,7 +8,8 @@ corpus_path= r'../Data'
 output_path=''
 stemming = True
 # queries = 'queries.txt'
-queries = ['donald trump']
+# queries = ['donald trump']
+queries = ''
 
 num_docs_to_retrieve = 5
 

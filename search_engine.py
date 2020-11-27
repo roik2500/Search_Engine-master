@@ -25,7 +25,7 @@ def run_engine(config):
 
     parse_limit = -1
 
-    limit_input = input('Number of tweets to index:')
+    limit_input = input('Number of tweets to index(leave empty for entire corpus):')
     while True:
         if limit_input == '':
             break
@@ -34,7 +34,7 @@ def run_engine(config):
             break
         except:
             print('Wrong Input')
-            limit_input = input('Number of tweets to index:')
+            limit_input = input('Number of tweets to index(leave empty for entire corpus):')
 
     # Iterate over every document in the file
     idx = 0

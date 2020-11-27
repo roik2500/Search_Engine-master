@@ -5,8 +5,8 @@ if __name__ == '__main__':
     output_path=''
     stemming = True
     # queries = 'queries.txt'
-    queries = ['donald trump']
-
+    # queries = ['donald trump']
+    queries = ''
     num_docs_to_retrieve = 5
 
     search_engine.main(corpus_path, output_path, stemming, queries, num_docs_to_retrieve)
