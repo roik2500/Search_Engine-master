@@ -29,6 +29,7 @@ class ReadFile:
                     self.file_list.append(os.path.join(root, name))
         self.file_list.sort()
         self.progressbar = tqdm(total=len(self.file_list))
+        # com
         self.n = 0
         return self
 
