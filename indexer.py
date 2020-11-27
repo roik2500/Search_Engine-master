@@ -92,7 +92,7 @@ class Indexer:
         best = []
         for opt in self.global_Table[word].items():
             sij=opt[1]/(self.global_Table[word][word]+self.global_Table[opt[0]][opt[0]]-opt[1])
-            if len(best) < 4:
+            if len(best) < 3:
                 best.append((opt[0],sij))
                 best.sort(key=lambda s: s[1])
             elif opt[1] > best[0][1]:
