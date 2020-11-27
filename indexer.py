@@ -66,7 +66,7 @@ class Indexer:
         for word_1 in Document:
             if word_1 not in self.global_Table.keys(): self.global_Table[word_1] = {}
             for word_2 in Document:
-                if word_1 == word_2: continue
+                #if word_1 == word_2: continue
                 if word_2 not in self.global_Table[word_1].keys():
                     self.global_Table[word_1][word_2] = 0
                 self.global_Table[word_1][word_2] += 1
@@ -91,11 +91,12 @@ class Indexer:
         """
         best = []
         for opt in self.global_Table[word].items():
+            sij=opt[1]/(self.global_Table[word][word]+self.global_Table[opt[0]][opt[0]]-opt[1])
             if len(best) < 4:
-                best.append(opt)
+                best.append((opt[0],sij))
                 best.sort(key=lambda s: s[1])
             elif opt[1] > best[0][1]:
-                best[0] = opt
+                best[0] = (opt[0],sij)
                 best.sort(key=lambda s: s[1])
         return [(b[0].text.lower(), b[1]) for b in best]
 

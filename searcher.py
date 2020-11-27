@@ -18,7 +18,7 @@ class Searcher:
         maxterm = 0
         output = {}
         add=[]
-        source=query
+        source=query.copy()
         for q in query:
             if q not in self.inverted_index.keys():continue
             add+=[x[0] for x in self.inverted_index[q][3]]
@@ -33,7 +33,7 @@ class Searcher:
         # for word in output.keys():
         #     if word not in self.inverted_index: continue  ##if word not in our compus-->worong typing of input
         #     output[word] = 0.5 *  (output[word] / maxterm) * self.inverted_index[word][2]  # wiq=tf*idf
-
+        query+=add
         maxterm = 0
         for word in query:
             if word in output.keys():
@@ -45,9 +45,9 @@ class Searcher:
         for word in output.keys():
             if word not in self.inverted_index: continue  ##if word not in our compus-->worong typing of input
             if word in add and word not in source:
-                output[word] = (output[word]*0.4 / maxterm) * self.inverted_index[word][2]
+                output[word] = (output[word]*0.8 / maxterm) * self.inverted_index[word][2]
             elif word in add and word in source:
-                output[word] = (output[word]*0.7 / maxterm) * self.inverted_index[word][2]
+                output[word] = (output[word] / maxterm) * self.inverted_index[word][2]
             else:
                 output[word] = (output[word] / maxterm) * self.inverted_index[word][2]  # wiq=tf*idf
         return output
