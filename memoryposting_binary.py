@@ -59,8 +59,7 @@ class BinaryMemoryPosting:
             merged_file.write(struct.pack('I', len(line)))
             merged_file.write(line)
             inverted_index[term.lower()][0] = curroffset
-            inverted_index[term.lower()][1] = len(line) + 4
-            curroffset += inverted_index[term.lower()][1]
+            curroffset += len(line) + 4
         for file in files:
             file.close()
             os.remove(file.name)

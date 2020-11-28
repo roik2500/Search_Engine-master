@@ -79,7 +79,7 @@ class Indexer:
             if word[1].isentity() and len(word[1].listOfDoc) < 2: continue
             if word[1].numOfDoc == 0:
                 continue
-            self.inverted_idx[word[0]] = [-1, -1, math.log2(N / word[1].numOfDoc),
+            self.inverted_idx[word[0]] = [0, math.log2(N / word[1].numOfDoc),
                                        self.BestFourWord(word[1])]
         # for word in word_dict.keys():
         #     if word_dict[word].isentity() and len(word_dict[word].listOfDoc) < 2: continue

@@ -5,3 +5,4 @@ tempPost
 venv
 *.pkl
 *.txt
+*.bin
