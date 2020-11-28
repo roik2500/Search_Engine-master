@@ -11,6 +11,7 @@ class Parse:
     __slots__ = ['idx','word_dict','stemmer','stop_words','UseStemmer']
     def __init__(self):
         self.word_dict = {}
+        self.UseStemmer=False
         self.stemmer = Stemmer()
         self.stop_words = [self.stemmer.stem_term(word) for word in stopwords.words('english')] + ['rt', 't.co']
 
