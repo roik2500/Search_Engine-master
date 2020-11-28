@@ -4,7 +4,7 @@ class Term:
         self.numOfInterfaces = 1
         self.numOfDoc = 0  #dfi
         self.is_entity = False
-        self.postings = []
+        self.postings = [] #PostingByTerm
 
 
 
