@@ -74,12 +74,19 @@ class Indexer:
     def CreatInvertedIndex(self, word_dict, idx):
         ##key:str name value: start,size,idfi=log(N/dfi)
         N = idx + 1
-        for word in word_dict.keys():
-            if word_dict[word].isentity() and len(word_dict[word].listOfDoc) < 2: continue
-            if word_dict[word].numOfDoc == 0:
+        for word in list(word_dict.keys()):
+            word = (word, word_dict.pop(word))
+            if word[1].isentity() and len(word[1].listOfDoc) < 2: continue
+            if word[1].numOfDoc == 0:
                 continue
-            self.inverted_idx[word] = [-1, -1, math.log2(N / word_dict[word].numOfDoc),
-                                       self.BestFourWord(word_dict[word])]
+            self.inverted_idx[word[0]] = [-1, -1, math.log2(N / word[1].numOfDoc),
+                                       self.BestFourWord(word[1])]
+        # for word in word_dict.keys():
+        #     if word_dict[word].isentity() and len(word_dict[word].listOfDoc) < 2: continue
+        #     if word_dict[word].numOfDoc == 0:
+        #         continue
+        #     self.inverted_idx[word] = [-1, -1, math.log2(N / word_dict[word].numOfDoc),
+        #                                self.BestFourWord(word_dict[word])]
         return self.inverted_idx
 
     def BestFourWord(self, word):

@@ -257,6 +257,10 @@ class Parse:
         self.idx = idx
 
         out = self.parse_sentence(doc_as_list[2])
+        for t in out:
+            if '\n' in t.text:
+                print(f'found NewLine in parsing: {t.text}')
+                t.text = t.text.replace('\n',' ')
 
         # out+=self.parse_sentence(doc_as_list[3])
         ##### for check ######

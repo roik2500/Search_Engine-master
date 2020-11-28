@@ -18,10 +18,10 @@ def run_engine(config):
     r = ReadFile(corpus_path=config.get__corpusPath())
     p = Parse()
     p.UseStemmer = config.DoStemmer
-    m = MemoryPosting(config.PostingFile)
-    # m = BinaryMemoryPosting(config.PostingFile)
+    # m = MemoryPosting(config.PostingFile)
+    m = BinaryMemoryPosting(config.PostingFile)
     indexer = Indexer(config)
-    maxpostingsize = 1000
+    maxpostingsize = 10000
 
     if os.path.exists(config.PostingFile):
         os.remove(config.PostingFile)
@@ -69,7 +69,7 @@ def run_engine(config):
     m.Save(indexer.addEntityToLastPosting())
 
 
-
+    print('Creating Inverted Index')
     inv_index = indexer.CreatInvertedIndex(p.word_dict, idx)
     print('Finished parsing and indexing. Starting to export files')
     m.Merge(inv_index)

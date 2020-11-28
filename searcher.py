@@ -61,8 +61,8 @@ class Searcher:
         # postingLists = [self.FindPostingByTerm(term) for term in query]  #list of postingfile -->[idx,tweetid,tfi]
         for term in query:
             try:
-                post = self.FindPostingByTerm(term)
-                # post = self.FindPostingByTerm_Binary(term)
+                # post = self.FindPostingByTerm(term)
+                post = self.FindPostingByTerm_Binary(term)
                 for p in post:
                     tweetId = p[1]
                     if tweetId not in relevant_docs.keys():

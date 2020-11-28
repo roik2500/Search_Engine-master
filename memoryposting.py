@@ -55,6 +55,9 @@ class MemoryPosting:
             for file in files:
                 line = file.readline()
                 if line:
+                    if len(line) == 1:
+                        print(f'error merging term:{line}')
+                        continue
                     all_done = False
                     line = line.strip('\n').split('~#') ##remove '\n'
                     if term == '':
@@ -65,7 +68,7 @@ class MemoryPosting:
                 new_line += '\n'
                 inverted_index[term.lower()][0] = curroffset
                 inverted_index[term.lower()][1] = merged_file.write(new_line)
-                curroffset += inverted_index[term.lower()][1] + 1
+                curroffset += inverted_index[term.lower()][1]
         for file in files:
             file.close()
             os.remove(file.name)

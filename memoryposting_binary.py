@@ -12,7 +12,7 @@ class BinaryMemoryPosting:
 
     ##Creating a new txt file for posting file and writing the Data
     def Save(self, postingdict ): #TODO: improve protocol
-        file = open(f'{self.dir}/{self.count}.txt', 'wb')
+        file = open(f'{self.dir}/{self.count}.bin', 'wb')
 
         for post in postingdict.keys():
              data = self.createPostData(postingdict[post])
@@ -43,7 +43,7 @@ class BinaryMemoryPosting:
         :return: -
          """
         ## open all files
-        files = [open(f'{self.dir}/{i}.txt','rb') for i in range(self.count)]
+        files = [open(f'{self.dir}/{i}.bin','rb') for i in range(self.count)]
         merged_file = open(self.postingFile,'wb') #the new files of all posting files
         curroffset = 0
         for term in inverted_index.keys():
