@@ -1,6 +1,6 @@
+import struct
 from parser_module import Parse
 from ranker import Ranker
-import utils
 
 
 class Searcher:
@@ -15,7 +15,6 @@ class Searcher:
         self.postingfile = postingfile
 
     def CalculateW(self, query):
-        maxterm = 0
         output = {}
         add=[]
         source=query.copy()
@@ -62,14 +61,13 @@ class Searcher:
         # postingLists = [self.FindPostingByTerm(term) for term in query]  #list of postingfile -->[idx,tweetid,tfi]
         for term in query:
             try:
-                # start_time = time.time()
                 post = self.FindPostingByTerm(term)
+                # post = self.FindPostingByTerm_Binary(term)
                 for p in post:
                     tweetId = p[1]
                     if tweetId not in relevant_docs.keys():
                         relevant_docs[tweetId] = {}
                     relevant_docs[tweetId][term] = p[2] * self.inverted_index[term][2]  # wiq
-                # print("after posting loop: {} --- {} seconds ---".format(term, time.time() - start_time))
             except:
                 print('term {} not found in posting'.format(term))
         return relevant_docs
@@ -134,11 +132,18 @@ class Searcher:
         return (int(d[0]), d[1], float(d[2]))
 
 
+    def FindPostingByTerm_Binary(self, term):
+        if term not in self.inverted_index.keys():
+            print("the term {} not in inverted index ".format(term))
+            return None
+        data = None
+        with open(self.postingfile, 'rb') as file:
+            start = self.inverted_index[term][0]
+            file.seek(start)
+            size = struct.unpack('I', file.read(4))[0]
+            data = file.read(size)
+            data = [self.read_bin_data(data[i:i+24]) for i in range(0, len(data), 24)]
+        return data
 
-
-
-
-
-
-
-
+    def read_bin_data(self, data):
+        return (struct.unpack('Q',data[:8])[0], struct.unpack('Q',data[8:16])[0], struct.unpack('d',data[16:])[0])

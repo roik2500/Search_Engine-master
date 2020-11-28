@@ -72,7 +72,7 @@ class Indexer:
                 self.global_Table[word_1][word_2] += 1
 
     def CreatInvertedIndex(self, word_dict, idx):
-        self.inverted_idx = {}  ##key:str name value: start,size,idfi=log(N/dfi)
+        ##key:str name value: start,size,idfi=log(N/dfi)
         N = idx + 1
         for word in word_dict.keys():
             if word_dict[word].isentity() and len(word_dict[word].listOfDoc) < 2: continue

@@ -1,5 +1,6 @@
 import time
 from memoryposting import MemoryPosting
+from memoryposting_binary import BinaryMemoryPosting
 from reader import ReadFile
 from configuration import ConfigClass
 from parser_module import Parse
@@ -18,10 +19,12 @@ def run_engine(config):
     p = Parse()
     p.UseStemmer = config.DoStemmer
     m = MemoryPosting(config.PostingFile)
+    # m = BinaryMemoryPosting(config.PostingFile)
     indexer = Indexer(config)
-    maxpostingsize = 10000
+    maxpostingsize = 1000
 
-    os.remove(config.PostingFile)
+    if os.path.exists(config.PostingFile):
+        os.remove(config.PostingFile)
 
     parse_limit = -1
 
