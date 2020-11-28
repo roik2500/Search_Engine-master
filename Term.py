@@ -6,11 +6,6 @@ class Term:
         self.is_entity = False
         self.postings = []
 
-    def __repr__(self):
-        return self.text
-
-    def isentity(self):
-        return self.is_entity
 
 
 

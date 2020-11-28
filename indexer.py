@@ -46,8 +46,8 @@ class Indexer:
         N = idx + 1
         for word in list(word_dict.keys()):
             word = (word, word_dict.pop(word))
-            # if word[1].isentity() and len(word[1].listOfDoc) < 2: continue
-            if word[1].numOfDoc == 0:
-                print(word[1])
-            inverted_idx[word[0]] = [0, math.log2(N / word[1].numOfDoc)]
+            if word[1].is_entity and word[1].numOfDoc < 2:
+                inverted_idx[word[0]] = None
+            else:
+                inverted_idx[word[0]] = [0, math.log2(N / word[1].numOfDoc)]
         return inverted_idx

@@ -11,8 +11,7 @@ class Parse:
     def __init__(self):
         self.word_dict = {}
         self.stemmer = Stemmer()
-        self.stop_words = [self.stemmer.stem_term(word) for word in stopwords.words('english')] + [
-            'rt', 't.co']
+        self.stop_words = [self.stemmer.stem_term(word) for word in stopwords.words('english')] + ['rt', 't.co']
 
     # helper function for nomberTostring-->return 3 digit after the point
     def round_down(self, n, decimals=0):
@@ -66,17 +65,17 @@ class Parse:
     def Tokenize(self, text):  # TODO: add two more rules and names support
         output = []
         word_list = [word for word in [self.stemmer.stem_term(self.strip_punc(word)) for word in text.split()] if word]
+        size = len(word_list)
 
         # find all the quotes in this doc
         # re.findall() find all quotes and return a list of quoets without " "
 
-        # quoets = [quoet.replace('\n',' ') for quoet in re.findall(r'"(.*?)"', text)] //TODO: check quoets
-        # for q in quoets:
-        #     qu = '"' + q + '"'
-        #     output.append(self.add_to_dict(qu))
+        quoets = [self.add_to_dict('"{}"'.format(quoet.replace('\n', ' '))) for quoet in re.findall(r'"(.*?)"', text)]
+        for q in quoets:
+            output.append(q)
 
         # The main loop
-        for i in range(len(word_list)):
+        for i in range(size):
             word = word_list[i]
 
             # # find a entity
@@ -112,19 +111,20 @@ class Parse:
             # entity = ''
             # if word == word_list[-1]:continue
 
-            if (i + 1) < len(word_list) and 'A' <= word[0] <= 'Z' and 'A' <= word_list[i + 1][0] <= 'Z':
+            if (i + 1) < size and 'A' <= word[0] <= 'Z' and 'A' <= word_list[i + 1][0] <= 'Z':
                 j = i + 2
                 entity = word + ' ' + word_list[i + 1]
-                while j < len(word_list) and 'A' <= word_list[j][0] <= 'Z':
+                output.append(self.add_entity_to_dict(entity))
+                while j < size and 'A' <= word_list[j][0] <= 'Z':
                     entity = entity + ' ' + word_list[j]
+                    output.append(self.add_entity_to_dict(entity))
                     j += 1
-                e = self.add_to_dict(entity)
-                e.is_entity = True
-                output.append(e)
 
             if self.isNumber(word):
                 try:  # here we are checking the text by the roles of parse
-                    if word[-1] == '%' or word_list[i + 1] == 'percent' or word_list[i + 1] == 'percentag':
+                    if word[-1] == '%' or word_list[i + 1] == 'percent' \
+                            or word_list[i + 1] == 'percentag'\
+                            or word_list[i + 1] == 'percentage':
                         if word[-1] != '%':
                             i += 1
                             word = word + '%'
@@ -180,6 +180,19 @@ class Parse:
                 self.word_dict[low_case].text = low_case
         else:
             self.word_dict[low_case] = Term(word)
+        return self.word_dict[low_case]
+
+    def add_entity_to_dict(self, word):
+        low_case = word.lower()
+        if low_case in self.stop_words:
+            return None
+        if low_case in self.word_dict.keys():
+            self.word_dict[low_case].numOfInterfaces += 1
+            if word == low_case:
+                self.word_dict[low_case].text = low_case
+        else:
+            self.word_dict[low_case] = Term(word)
+            self.word_dict[low_case].is_entity = True
         return self.word_dict[low_case]
 
     # #stayAtHome--->['#stayAtHome', 'stay', 'At',Home]

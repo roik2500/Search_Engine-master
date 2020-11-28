@@ -74,7 +74,7 @@ class Searcher:
         #
         #
         # ## check if we finish to read all the posting file (just one)
-        # while not [True for i in range(query_size) if lists_indx[i]>=len(postingLists[i])]: #TODO: need to fixe that loop,its stack here sometimes
+        # while not [True for i in range(query_size) if lists_indx[i]>=len(postingLists[i])]:
         #     docs = {postingLists[i][lists_indx[i]][1] for i in range(query_size)} #list of docid
         #     if len(docs) == 1: #all the terms from query in this docid
         #         tweetid = docs.pop()

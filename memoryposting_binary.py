@@ -11,7 +11,7 @@ class BinaryMemoryPosting:
             os.makedirs(self.dir)
 
     ##Creating a new txt file for posting file and writing the Data
-    def Save(self, postingdict):  # TODO: improve protocol
+    def Save(self, postingdict):
         file = open(f'{self.dir}/{self.count}.bin', 'wb')
 
         for post in postingdict.keys():
@@ -54,11 +54,15 @@ class BinaryMemoryPosting:
                     os.remove(file.name)
                 else:
                     line += file.read(struct.unpack('I', line_size)[0])
-            merged_file.write(struct.pack('I', len(line)))
-            merged_file.write(line)
-            inverted_index[term.lower()][0] = curroffset
-            curroffset += len(line) + 4
+            if inverted_index[term]:
+                merged_file.write(struct.pack('I', len(line)))
+                merged_file.write(line)
+                inverted_index[term.lower()][0] = curroffset
+                curroffset += len(line) + 4
         for file in files:
             file.close()
             os.remove(file.name)
         merged_file.close()
+        for term in list(inverted_index.keys()):
+            if not inverted_index[term]:
+                inverted_index.pop(term)
