@@ -4,7 +4,7 @@ from ranker import Ranker
 
 
 class Searcher:
-
+    __slots__ = ['parser','ranker','inverted_index','postingfile']
     def __init__(self, inverted_index, postingfile=None):
         """
         :param inverted_index: dictionary of inverted index
@@ -68,45 +68,6 @@ class Searcher:
                 print('term {} not found in posting'.format(term))
         return relevant_docs
 
-        # query_size = len(query)
-        # lists_indx = [0]*query_size #pointers to postingdlist
-        #
-        #
-        #
-        # ## check if we finish to read all the posting file (just one)
-        # while not [True for i in range(query_size) if lists_indx[i]>=len(postingLists[i])]:
-        #     docs = {postingLists[i][lists_indx[i]][1] for i in range(query_size)} #list of docid
-        #     if len(docs) == 1: #all the terms from query in this docid
-        #         tweetid = docs.pop()
-        #         relevant_docs[tweetid] = {}
-        #         for i in range(query_size):
-        #             relevant_docs[tweetid][query[i]] = postingLists[i][lists_indx[i]][2]*self.inverted_index[query[i]][2] #wiq
-        #             lists_indx[i] += 1
-        #     else:
-        #         min_index = 0
-        #         for i in range(1,query_size):
-        #             if postingLists[i][lists_indx[i]][0] < postingLists[min_index][lists_indx[min_index]][0]: min_index=i
-        #         lists_indx[min_index] += 1
-        # return relevant_docs
-
-        # for term in query:
-        #       self.FindPostingByTerm(term)
-        #     try:  # an example of checks that you have to do
-        #         list_of_terms = query[term]
-        #         for doc_tuple in posting_doc:
-        #             doc = doc_tuple[0]
-        #             if doc not in relevant_docs.keys():
-        #                 relevant_docs[doc] = 1
-        #             else:
-        #                 relevant_docs[doc] += 1
-        #     except:
-        #
-        # return relevant_docs
-
-    # [
-    #     {tweetId1:
-    #          {term:w}}
-    # ]
 
     def FindPostingByTerm(self, term):
         if term not in self.inverted_index.keys():

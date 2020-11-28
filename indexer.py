@@ -40,6 +40,21 @@ class Indexer:
             postings[word].tfi *= sigma
 
 
+    # def addTOGlobalMethod(self, Document):
+    #     """
+    #     This function are updating the global table
+    #     The function taking two words any time from list and calculate the colorization between them
+    #     :param Document: list of term (object term)
+    #     :return: void
+    #     """
+    #     for word_1 in Document:
+    #         if word_1 not in self.global_Table.keys(): self.global_Table[word_1] = {}
+    #         for word_2 in Document:
+    #             #if word_1 == word_2: continue
+    #             if word_2 not in self.global_Table[word_1].keys():
+    #                 self.global_Table[word_1][word_2] = 0
+    #             self.global_Table[word_1][word_2] += 1
+
     def CreatInvertedIndex(self, word_dict, idx):
         ##key:str name value: start,size,idfi=log(N/dfi)
         inverted_idx = {}

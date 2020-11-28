@@ -1,4 +1,5 @@
 import time
+from memoryposting import MemoryPosting
 from memoryposting_binary import BinaryMemoryPosting
 from reader import ReadFile
 from configuration import ConfigClass
@@ -124,6 +125,9 @@ def main(corpus_path,output_path,stemming,queries,num_docs_to_retrieve):
     while rebuild_index.lower() not in ['','y','n']:
         print('Wrong Input')
         rebuild_index = input("Rebuild Index?[Y,n]")
+
+
+    start_time = time.time()
     if rebuild_index == '' or rebuild_index.lower()=='y':
         run_engine(config)
     #run_engine()

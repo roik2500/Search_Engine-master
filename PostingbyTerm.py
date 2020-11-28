@@ -1,5 +1,5 @@
 class PostingbyTerm:
-
+    __slots__ = ['docId','tweetId','tfi']
     def __init__(self,doc_id,tweetID):
         self.docId = doc_id
         self.tweetId = tweetID

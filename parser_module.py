@@ -8,6 +8,7 @@ import json
 
 
 class Parse:
+    __slots__ = ['idx','word_dict','stemmer','stop_words','UseStemmer']
     def __init__(self):
         self.word_dict = {}
         self.stemmer = Stemmer()
@@ -63,6 +64,16 @@ class Parse:
 
     # Build a tokenize---> split by spaces
     def Tokenize(self, text):  # TODO: add two more rules and names support
+        # word_list = [self.strip_punc(self.stemmer.stem_term(word)) for word in text.split()] # creating a list of split word after stemming
+        word_list = []
+        for word in text.split():
+            if '"' in word:
+                word_list.append(self.strip_punc(word))
+            else:
+                if self.UseStemmer == True:
+                    word_list.append(self.strip_punc(self.stemmer.stem_term(word)))
+                else:
+                    word_list.append(self.strip_punc(word))
         output = []
         word_list = [word for word in [self.stemmer.stem_term(self.strip_punc(word)) for word in text.split()] if word]
         size = len(word_list)
@@ -70,7 +81,7 @@ class Parse:
         # find all the quotes in this doc
         # re.findall() find all quotes and return a list of quoets without " "
 
-        quoets = [self.add_to_dict('"{}"'.format(quoet.replace('\n', ' '))) for quoet in re.findall(r'"(.*?)"', text)]
+        quoets = [self.add_to_dict('"{}"'.format(quoet)) for quoet in re.findall(r'"(.*?)"', text)]
         for q in quoets:
             output.append(q)
 
@@ -243,9 +254,17 @@ class Parse:
         """
         self.extendURLs(doc_as_list)
         doc_as_list[2] = self.removeEmojify(doc_as_list[2])
+        doc_as_list[2] = doc_as_list[2].replace('\n',' ')
+
 
         out = self.parse_sentence(doc_as_list[2])
 
+        # print(out)
+
+        # print(self.word_dict)
+        # print(self.entity['Roi Kremer'].numOfDoc)
+
+        ##### for check #######
         return out
 
         # tweet_id = doc_as_list[0]
