@@ -61,6 +61,7 @@ def run_engine(config):
             break
     r.progressbar.close()
     m.Save(p.word_dict)
+   # indexer.Creat_and_load_global_table()
 
     print('Creating Inverted Index')
     inv_index = indexer.CreatInvertedIndex(p.word_dict, idx)
