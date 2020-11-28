@@ -3,14 +3,14 @@ class Term:
         self.text = text
         self.numOfInterfaces = 1
         self.numOfDoc = 0  #dfi
-        self.listOfDoc = set() #only for entity
-
+        self.is_entity = False
+        self.postings = []
 
     def __repr__(self):
         return self.text
+
     def isentity(self):
-        if len(self.listOfDoc) > 0:return True
-        else:return False
+        return self.is_entity
 
 
 

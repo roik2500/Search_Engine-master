@@ -1,5 +1,4 @@
 import time
-from memoryposting import MemoryPosting
 from memoryposting_binary import BinaryMemoryPosting
 from reader import ReadFile
 from configuration import ConfigClass
@@ -20,7 +19,7 @@ def run_engine(config):
     p.UseStemmer = config.DoStemmer
     # m = MemoryPosting(config.PostingFile)
     m = BinaryMemoryPosting(config.PostingFile)
-    indexer = Indexer(config)
+    indexer = Indexer()
     maxpostingsize = 10000
 
     if os.path.exists(config.PostingFile):
@@ -44,13 +43,7 @@ def run_engine(config):
     for documents_list in r:
         step = 1/len(documents_list)
         for document in documents_list:
-            # print(document)
-            # parse the document
-            ## parsed_document = p.parse_doc(document)
-            parsed_list = p.parse_doc(document, idx)
-            # break
-            # number_of_documents += 1
-            # print(idx)
+            parsed_list = p.parse_doc(document)
 
             # index the document data
             indexer.add_new_doc(parsed_list, idx, document[0])
@@ -58,7 +51,7 @@ def run_engine(config):
             idx += 1
 
             if idx % maxpostingsize == 0:
-                m.Save(indexer.postingDict)
+                m.Save(p.word_dict)
             r.progressbar.update(step)
 
             if idx == parse_limit:
@@ -66,8 +59,7 @@ def run_engine(config):
         if idx == parse_limit:
             break
     r.progressbar.close()
-    m.Save(indexer.addEntityToLastPosting())
-
+    m.Save(p.word_dict)
 
     print('Creating Inverted Index')
     inv_index = indexer.CreatInvertedIndex(p.word_dict, idx)
