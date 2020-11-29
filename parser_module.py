@@ -73,7 +73,7 @@ class Parse:
         return text.encode('ascii', 'ignore').decode('ascii')
 
     # Build a tokenize---> split by spaces
-    def Tokenize(self, text):  # TODO: add two more rules and names support
+    def Tokenize(self, text):
         output = []
         word_list = [word for word in [self.stemmer.stem_term(self.strip_punctuations(word)) for word in text.split()]
                      if word]
