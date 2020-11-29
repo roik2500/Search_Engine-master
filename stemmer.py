@@ -1,8 +1,12 @@
 from nltk.stem.porter import PorterStemmer
 
+
 class Stemmer:
-    def __init__(self):
+    __slots__ = ['stemmer', 'do_stem']
+
+    def __init__(self, do_stem):
         self.stemmer = PorterStemmer()
+        self.do_stem = do_stem
 
     def stem_term(self, token):
         """
@@ -10,11 +14,14 @@ class Stemmer:
         :param token: string of a token
         :return: stemmed token
         """
-        word = str(token)
-        if word == word.title():
-            word = self.stemmer.stem(word).capitalize()
-        elif word.isupper():
-            word = self.stemmer.stem(word).upper()
+        if not self.do_stem:
+            return token
         else:
-            word = self.stemmer.stem(word)
-        return word
+            word = str(token)
+            if word == word.title():
+                word = self.stemmer.stem(word).capitalize()
+            elif word.isupper():
+                word = self.stemmer.stem(word).upper()
+            else:
+                word = self.stemmer.stem(word)
+            return word

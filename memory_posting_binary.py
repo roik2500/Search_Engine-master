@@ -3,30 +3,32 @@ import struct
 
 
 class BinaryMemoryPosting:
-    def __init__(self, postingFile):
-        self.postingFile = postingFile
+    __slots__ = ['postingFile', 'count', 'dir']
+
+    def __init__(self, posting_file):
+        self.postingFile = posting_file
         self.count = 0
-        self.dir = 'tempPost'  # name of file of postingfile
+        self.dir = 'tempPost'  # name of file of posting file
         if not os.path.exists(self.dir):
             os.makedirs(self.dir)
 
-    ##Creating a new txt file for posting file and writing the Data
-    def Save(self, postingdict):
+    # Creating a new txt file for posting file and writing the Data
+    def Save(self, posting_dict):
         file = open(f'{self.dir}/{self.count}.bin', 'wb')
 
-        for post in postingdict.keys():
-            data = self.createPostData(postingdict[post].postings)
+        for post in posting_dict.keys():
+            data = self.createPostData(posting_dict[post].postings)
             file.write(data)
-            postingdict[post].postings.clear()
+            posting_dict[post].postings.clear()
         file.close()
         self.count += 1
 
-
-    def createPostData(self, data):
+    @staticmethod
+    def createPostData(data):
         """
-           This function creating the content of each posting file(befor merge)
+           This function creating the content of each posting file(before merge)
            format: term~#(idx,docId,tfi)
-          :param dict invertedindex
+          :param data
           :return: str list of all the data by the format above
          """
         output = struct.pack('I', len(data) * 24)
@@ -36,14 +38,14 @@ class BinaryMemoryPosting:
 
     def Merge(self, inverted_index):
         """
-        This function mergin all the posting file to one file
-        :param dict invertedindex
+        This function merging all the posting file to one file
+        :param inverted_index
         :return: -
          """
-        ## open all files
+        # open all files
         files = [open(f'{self.dir}/{i}.bin', 'rb') for i in range(self.count)]
         merged_file = open(self.postingFile, 'wb')  # the new files of all posting files
-        curroffset = 0
+        curr_offset = 0
         for term in inverted_index.keys():
             line = struct.pack('')
             for file in list(files):
@@ -57,8 +59,8 @@ class BinaryMemoryPosting:
             if inverted_index[term]:
                 merged_file.write(struct.pack('I', len(line)))
                 merged_file.write(line)
-                inverted_index[term.lower()][0] = curroffset
-                curroffset += len(line) + 4
+                inverted_index[term.lower()][0] = curr_offset
+                curr_offset += len(line) + 4
         for file in files:
             file.close()
             os.remove(file.name)

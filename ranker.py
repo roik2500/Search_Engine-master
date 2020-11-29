@@ -14,15 +14,15 @@ class Ranker:
         :param relevant_doc: dictionary of documents that contains at least one term from the query.
         :return: sorted list of documents by score
         """
-        sum_Wq_sqr = sum([a**2 for a in query_grades.values()])
+        sum_wq_sqr = sum([a ** 2 for a in query_grades.values()])
         output = []
         for doc in relevant_doc.keys():
-            sum_Wi_sqr = 0
+            sum_wi_sqr = 0
             score = 0
             for term in relevant_doc[doc].keys():
-                sum_Wi_sqr += relevant_doc[doc][term]**2
-                score += query_grades[term]*relevant_doc[doc][term]# sim()
-            s = score/math.sqrt(sum_Wi_sqr*sum_Wq_sqr)
+                sum_wi_sqr += relevant_doc[doc][term] ** 2
+                score += query_grades[term] * relevant_doc[doc][term]  # sim()
+            s = score / math.sqrt(sum_wi_sqr * sum_wq_sqr)
             output.append((doc, s))
         return sorted(output, key=lambda item: item[1], reverse=True)
 
