@@ -98,17 +98,22 @@ class Parse:
                     entity = entity + ' ' + word_list[j]
                     output.append(self.add_entity_to_dict(entity))
                     j += 1
+            
+            if (i + 1) < size and word.lower() in ['less', 'more']:
+                new_term = f'{word} {word_list[i + 1]}'
+                if word_list[i+1].lower() == 'than' and i + 2 < size:
+                    new_term += f' {word_list[i + 2]}'
+                output.append(self.add_to_dict(new_term.lower()))                    
 
             if self.isNumber(word):
                 try:  # here we are checking the text by the roles of parse
-                    if word[-1] == '%' or word_list[i + 1] == 'percent' \
-                            or word_list[i + 1] == 'percentag' \
-                            or word_list[i + 1] == 'percentage':
+                    if word[-1] == '%' or (i + 1 < size and (word_list[i + 1] == 'percent' \
+                            or word_list[i + 1] == self.stemmer.stem_term('percentage'))):
                         if word[-1] != '%':
                             i += 1
                             word = word + '%'
 
-                    if word_list[i + 1] == '$':
+                    if word_list[i + 1] == '$': # TODO: fix
                         w_1 = word + word_list[i + 1]
                         w_2 = word + ' ' + word_list[i + 1]
                         output.append(self.add_to_dict(w_1))

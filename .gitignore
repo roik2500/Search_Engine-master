@@ -6,3 +6,4 @@ venv
 *.pkl
 *.txt
 *.bin
+.DS_Store
