@@ -98,46 +98,40 @@ class Parse:
                     entity = entity + ' ' + word_list[j]
                     output.append(self.add_entity_to_dict(entity))
                     j += 1
-            
+
             if (i + 1) < size and word.lower() in ['less', 'more']:
                 new_term = f'{word} {word_list[i + 1]}'
-                if word_list[i+1].lower() == 'than' and i + 2 < size:
+                if word_list[i + 1].lower() == 'than' and i + 2 < size:
                     new_term += f' {word_list[i + 2]}'
-                output.append(self.add_to_dict(new_term.lower()))                    
+                output.append(self.add_to_dict(new_term.lower()))
 
             if self.isNumber(word):
-                try:  # here we are checking the text by the roles of parse
-                    if word[-1] == '%' or (i + 1 < size and (word_list[i + 1] == 'percent' \
-                            or word_list[i + 1] == self.stemmer.stem_term('percentage'))):
-                        if word[-1] != '%':
-                            i += 1
-                            word = word + '%'
+                if i + 1 < size and word_list[i + 1].lower() in [self.stemmer.stem_term('percent'),
+                                                                 self.stemmer.stem_term('percentage')]:
+                    i += 1
+                    word += '%'
 
-                    if word_list[i + 1] == '$': # TODO: fix
-                        w_1 = word + word_list[i + 1]
-                        w_2 = word + ' ' + word_list[i + 1]
-                        output.append(self.add_to_dict(w_1))
-                        output.append(self.add_to_dict(w_2))
+                elif i + 1 < size and word_list[i + 1].lower() in [self.stemmer.stem_term('dollar'),
+                                                                   self.stemmer.stem_term('dollars')]:
+                    i += 1
+                    word += '$'
 
-                    # check if the number is actually separate to 2 word: 35 3/5
-                    elif self.isNumber(word) and self.isNumber(word_list[i + 1]) and word_list[i + 1].__contains__('/'):
-                        word += ' ' + word_list[i + 1]
-                        output.append(self.add_to_dict(word))
-                    # cases of Thousand=K    Million=M    Billion=B--->the function numberToString do it
-                    elif word_list[i + 1] == 'Thousand' or word_list[i + 1] == 'thousand':
-                        i += 1
-                        word = self.numberToString(float(word) * 1000)
-                    elif word_list[i + 1] == 'Million' or word_list[i + 1] == 'million':
-                        i += 1
-                        word = self.numberToString(float(word) * 1000000)
-                    elif word_list[i + 1] == 'Billion' or word_list[i + 1] == 'billion':
-                        i += 1
-                        word = self.numberToString(float(word) * 1000000000)
-                    else:
-                        word = self.numberToString(float(word))
-                    output.append(self.add_to_dict(word))
-                except:
-                    output.append(self.add_to_dict(word))
+                # check if the number is actually separate to 2 word: 35 3/5
+                elif i + 1 < size and self.isNumber(word_list[i + 1]) and '/' in word_list[i + 1]:
+                    word += ' ' + word_list[i + 1]
+                # cases of Thousand=K    Million=M    Billion=B--->the function numberToString do it
+                elif i + 1 < size and word_list[i + 1].lower() == self.stemmer.stem_term('thousand'):
+                    i += 1
+                    word = self.numberToString(float(word) * 1000)
+                elif i + 1 < size and word_list[i + 1].lower() == self.stemmer.stem_term('million'):
+                    i += 1
+                    word = self.numberToString(float(word) * 1000000)
+                elif i + 1 < size and word_list[i + 1].lower() == self.stemmer.stem_term('billion'):
+                    i += 1
+                    word = self.numberToString(float(word) * 1000000000)
+                else:
+                    word = self.numberToString(float(word))
+                output.append(self.add_to_dict(word))
             # hashtag
             elif word[0] == '#':
                 for word in self.hashtag(word):
