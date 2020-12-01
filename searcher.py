@@ -18,15 +18,22 @@ class Searcher:
 
         max_term = 0
         for word in query:
-            if word in output.keys():
-                output[word] += 1
+            if word not in self.inverted_index.keys():
+                print("Term {} not found".format(word))
             else:
-                output[word] = 1
-            max_term = max(max_term, output[word])
+                if word in output.keys():
+                    output[word] += 1
+                else:
+                    output[word] = 1
+                max_term = max(max_term, output[word])
+                for extended_word, extended_grade in self.inverted_index[word][2][-4:]:
+                    if extended_word in output.keys():
+                        output[extended_word] += extended_grade
+                    else:
+                        output[extended_word] = extended_grade
+                    max_term = max(max_term, output[extended_word])
 
         for word in output.keys():
-            if word not in self.inverted_index:
-                continue  # if word not in our corpus--> wrong typing of input
             output[word] = (output[word] / max_term) * self.inverted_index[word][1]  # wiq=tf*idf
         return output
 
@@ -39,23 +46,15 @@ class Searcher:
         relevant_docs = {}
         # postingLists = [self.FindPostingByTerm(term) for term in query]  #list of posting file -->[idx,tweet id,tfi]
         for term in query:
-            try:
-                # post = self.FindPostingByTerm(term)
-                post = self.FindPostingByTerm_Binary(term)
-                for p in post:
-                    tweet_id = p[1]
-                    if tweet_id not in relevant_docs.keys():
-                        relevant_docs[tweet_id] = {}
-                    relevant_docs[tweet_id][term] = p[2] * self.inverted_index[term][1]  # wiq
-            except:
-                print('term {} not found in posting'.format(term))
+            post = self.FindPostingByTerm_Binary(term)
+            for p in post:
+                tweet_id = p[1]
+                if tweet_id not in relevant_docs.keys():
+                    relevant_docs[tweet_id] = {}
+                relevant_docs[tweet_id][term] = p[2] * self.inverted_index[term][1]  # wiq
         return relevant_docs
 
     def FindPostingByTerm_Binary(self, term):
-        if term not in self.inverted_index.keys():
-            print("the term {} not in inverted index ".format(term))
-            return None
-
         with open(self.posting_file, 'rb') as file:
             start = self.inverted_index[term][0]
             file.seek(start)

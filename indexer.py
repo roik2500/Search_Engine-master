@@ -52,6 +52,7 @@ class Indexer:
     #     :param Document: list of term (object term)
     #     :return: void
     #     """
+    #     Document = [word.text.lower() for word in Document]
     #     for word_1 in Document:
     #         if word_1 not in self.global_table.keys():
     #             self.global_table[word_1] = {}
@@ -70,16 +71,17 @@ class Indexer:
     #                     self.global_table[word_1][word_1] + self.global_table[word_2][word_2] -
     #                     self.global_table[word_1][word_2])
     #             if len(top) < 10:
-    #                 top.append((word_2.text, s))
+    #                 top.append((word_2, s))
     #                 top.sort(key=lambda score: score[1])
     #             elif s > top[0][1]:
-    #                 top[0] = (word_2.text, s)
+    #                 top[0] = (word_2, s)
     #                 top.sort(key=lambda score: score[1])
-    #         top_global[word_1.text] = top
+    #         top_global[word_1] = top
     #     utils.save_obj(top_global, 'global_table')
 
     @staticmethod
     def CreatInvertedIndex(word_dict, idx):
+        global_table = utils.load_obj('global_table')
         # key:str name value: start,size,idf_i=log(N/dfi)
         inverted_idx = {}
         n = idx + 1
@@ -88,5 +90,5 @@ class Indexer:
             if word[1].is_entity and word[1].numOfDoc < 2:
                 inverted_idx[word[0]] = None
             else:
-                inverted_idx[word[0]] = [0, math.log2(n / word[1].numOfDoc)]
+                inverted_idx[word[0]] = [0, math.log2(n / word[1].numOfDoc), global_table[word[0]]]
         return inverted_idx
