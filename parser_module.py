@@ -106,31 +106,34 @@ class Parse:
                 output.append(self.add_to_dict(new_term.lower()))
 
             if self.isNumber(word):
-                if i + 1 < size and word_list[i + 1].lower() in [self.stemmer.stem_term('percent'),
-                                                                 self.stemmer.stem_term('percentage')]:
-                    i += 1
-                    word += '%'
+                try:
+                    if i + 1 < size and word_list[i + 1].lower() in [self.stemmer.stem_term('percent'),
+                                                                    self.stemmer.stem_term('percentage')]:
+                        i += 1
+                        word += '%'
 
-                elif i + 1 < size and word_list[i + 1].lower() in [self.stemmer.stem_term('dollar'),
-                                                                   self.stemmer.stem_term('dollars')]:
-                    i += 1
-                    word += '$'
+                    elif i + 1 < size and word_list[i + 1].lower() in [self.stemmer.stem_term('dollar'),
+                                                                    self.stemmer.stem_term('dollars')]:
+                        i += 1
+                        word += '$'
 
-                # check if the number is actually separate to 2 word: 35 3/5
-                elif i + 1 < size and self.isNumber(word_list[i + 1]) and '/' in word_list[i + 1]:
-                    word += ' ' + word_list[i + 1]
-                # cases of Thousand=K    Million=M    Billion=B--->the function numberToString do it
-                elif i + 1 < size and word_list[i + 1].lower() == self.stemmer.stem_term('thousand'):
-                    i += 1
-                    word = self.numberToString(float(word) * 1000)
-                elif i + 1 < size and word_list[i + 1].lower() == self.stemmer.stem_term('million'):
-                    i += 1
-                    word = self.numberToString(float(word) * 1000000)
-                elif i + 1 < size and word_list[i + 1].lower() == self.stemmer.stem_term('billion'):
-                    i += 1
-                    word = self.numberToString(float(word) * 1000000000)
-                else:
-                    word = self.numberToString(float(word))
+                    # check if the number is actually separate to 2 word: 35 3/5
+                    elif i + 1 < size and self.isNumber(word_list[i + 1]) and '/' in word_list[i + 1]:
+                        word += ' ' + word_list[i + 1]
+                    # cases of Thousand=K    Million=M    Billion=B--->the function numberToString do it
+                    elif i + 1 < size and word_list[i + 1].lower() == self.stemmer.stem_term('thousand'):
+                        i += 1
+                        word = self.numberToString(float(word) * 1000)
+                    elif i + 1 < size and word_list[i + 1].lower() == self.stemmer.stem_term('million'):
+                        i += 1
+                        word = self.numberToString(float(word) * 1000000)
+                    elif i + 1 < size and word_list[i + 1].lower() == self.stemmer.stem_term('billion'):
+                        i += 1
+                        word = self.numberToString(float(word) * 1000000000)
+                    else:
+                        word = self.numberToString(float(word))
+                except:
+                    pass
                 output.append(self.add_to_dict(word))
             # hashtag
             elif word[0] == '#':
