@@ -61,7 +61,7 @@ class Indexer:
     #             if word_2 not in self.global_table[word_1].keys():
     #                 self.global_table[word_1][word_2] = 0
     #             self.global_table[word_1][word_2] += 1
-    #
+    
     # def Creat_and_load_global_table(self):
     #     top_global = {}
     #     for word_1 in self.global_table.keys():
@@ -87,7 +87,9 @@ class Indexer:
         n = idx + 1
         for word in list(word_dict.keys()):
             word = (word, word_dict.pop(word))
-            if word[1].is_entity and word[1].numOfDoc < 2:
+            if word[1].numOfDoc == 0:
+                inverted_idx[word[0]] = None
+            elif word[1].is_entity and word[1].numOfDoc < 2:
                 inverted_idx[word[0]] = None
             else:
                 inverted_idx[word[0]] = [0, math.log2(n / word[1].numOfDoc), global_table[word[0]]]

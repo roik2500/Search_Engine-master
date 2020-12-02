@@ -17,7 +17,6 @@ def run_engine(corpus_path, stemming):
     """
     r = ReadFile(corpus_path)
     p = Parse(stemming)
-    # m = MemoryPosting(config.PostingFile)
     m = BinaryMemoryPosting(PostingFile)
     indexer = Indexer()
     max_posting_size = 100000
@@ -71,7 +70,7 @@ def run_engine(corpus_path, stemming):
     utils.save_obj(inv_index, InvertedIndexFile)
 
 
-# This function for update the doc,adding the entity that appears at least in tow doc in all the corpus
+# This function for update the doc,addingv the entity that appears at least in tow doc in all the corpus
 def updateDocByEntity(doc, list_of_entity):
     for term in list_of_entity:  # tf
         if term not in doc.term_dict.keys():
