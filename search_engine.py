@@ -1,3 +1,4 @@
+import csv
 import time
 from memory_posting_binary import BinaryMemoryPosting
 from reader import ReadFile
@@ -42,6 +43,7 @@ def run_engine(corpus_path, stemming, outpath):
 
     # Iterate over every document in the file
     idx = 0
+    parquet_number = 1
     for documents_list in r:
         step = 1 / len(documents_list)
         for document in documents_list:
@@ -49,25 +51,41 @@ def run_engine(corpus_path, stemming, outpath):
 
             # index the document data
             indexer.add_new_doc(parsed_list, idx, document[0])
-            # print(idx)
+            print(idx)
             idx += 1
 
             if idx % max_posting_size == 0:
                 m.Save(p.word_dict)
             r.progressbar.update(step)
 
-            if idx == parse_limit:
-                break
-        if idx == parse_limit:
-            break
+        #     if idx == parse_limit:
+        #         break
+        # if idx == parse_limit:
+        #     break
+        print('finish the parquet {}'.format(parquet_number))
+        if parquet_number == 1:
+            first = True
+        else:first = False
+
+        start_time = time.time()
+        print('start to create and load the global method {}'.format(parquet_number))
+        indexer.Creat_and_load_global_table(first)
+        parquet_number+=1
+        print("--- %s seconds ---" % (time.time() - start_time))
+        #if parquet == 2: break
+
     r.progressbar.close()
+    print('start to save the posting file')
     m.Save(p.word_dict)
-    # indexer.Creat_and_load_global_table()
+
 
     print('Creating Inverted Index')
     inv_index = indexer.CreatInvertedIndex(p.word_dict, idx)
     print('Finished parsing and indexing. Starting to export files')
+
+    print('start merge')
     m.Merge(inv_index)
+    print('end merge')
     utils.save_obj(inv_index, InvertedIndexFile)
 
 
@@ -113,6 +131,7 @@ def search_and_rank_query(query, inverted_index, k, stemming):
 
 
 def main(corpus_path, output_path, stemming, queries, num_docs_to_retrieve):
+    #a=utils.load_obj('global_table')
     print("<------------- COVID Tweet Searcher ------------->")
     rebuild_index = input("Rebuild Index?[Y,n]")
     while rebuild_index.lower() not in ['', 'y', 'n']:
@@ -121,36 +140,34 @@ def main(corpus_path, output_path, stemming, queries, num_docs_to_retrieve):
 
     start_time = time.time()
     if rebuild_index == '' or rebuild_index.lower() == 'y':
-        run_engine(corpus_path, stemming)
-
+        run_engine(corpus_path, stemming, output_path)
+    start_time = time.time()
     print("--- %s seconds ---" % (time.time() - start_time))
 
     start_time = time.time()
     inverted_index = load_index()
     print("inverted index load --- %s seconds ---" % (time.time() - start_time))
 
-    output_file = None
-    if output_path:
-        output_file = open(output_path, 'w')
-
-    if queries == '':
-        while True:
-            q = input("query: ")
-            for doc_tuple in search_and_rank_query(q, inverted_index, num_docs_to_retrieve, stemming):
-                if output_file:
-                    output_file.write('tweet id: {}, score : {}\n'.format(doc_tuple[0], doc_tuple[1]))
-                else:
-                    print('tweet id: {}, score : {}'.format(doc_tuple[0], doc_tuple[1]))
-    else:
-        if not isinstance(queries, list):
-            queries = ReadQueryFromFile(queries)
-        for q in queries:
-            print(q)  # TODO: remove
-            for doc_tuple in search_and_rank_query(q, inverted_index, num_docs_to_retrieve, stemming):
-                if output_file:
-                    output_file.write('tweet id: {}, score : {}\n'.format(doc_tuple[0], doc_tuple[1]))
-                else:
-                    print('tweet id: {}, score : {}'.format(doc_tuple[0], doc_tuple[1]))
+    # output_file = open(output_path, 'w')
+    # if queries == '':
+    #     while True:
+    #         q = input("query: ")
+    #         for doc_tuple in search_and_rank_query(q, inverted_index, num_docs_to_retrieve, stemming):
+    #             if output_file:
+    #                 output_file.write('tweet id: {}, score : {}\n'.format(doc_tuple[0], doc_tuple[1]))
+    #             else:
+    #                 print('tweet id: {}, score : {}'.format(doc_tuple[0], doc_tuple[1]))
+    # else:
+    if not isinstance(queries, list):
+        queries = ReadQueryFromFile(queries)
+    file = open(file_output, 'w', newline='')
+    csv.writer(file).writerow(["tweetID", "score"])
+    for q in queries:
+        print(q)  # TODO: remove
+        for doc_tuple in search_and_rank_query(q, inverted_index, num_docs_to_retrieve, stemming):
+            csv.writer(file).writerow(["{:f}".format(doc_tuple[0]),"{:f}".format(doc_tuple[1])])
+            print('tweet id: {}, score : {}'.format(doc_tuple[0], doc_tuple[1]))
+    file.close()
 
 
 def ReadQueryFromFile(queries_file):
