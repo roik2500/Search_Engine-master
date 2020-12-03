@@ -7,11 +7,11 @@ class Indexer:
     # __slots__ = ['global_table']
 
     def __init__(self):
-        # self.global_table = {}
+        self.global_table = {}
         pass
 
-    @staticmethod
-    def add_new_doc(document, document_index, tweet_id):
+    #@staticmethod
+    def add_new_doc(self,document, document_index, tweet_id):
         """
         This function perform indexing process for a document list.
         Saved information is captures via two dictionaries ('inverted index' and 'posting')
@@ -25,7 +25,7 @@ class Indexer:
         # this struct include a postingByTerm object
         postings = {}  # key=term  value=(docID,tweetID,tf,tfi)
         max_term = 0  # number of maximum  word interfaces per doc
-        # self.addTOGlobalMethod(document)
+        self.addTOGlobalMethod(document)
         for word in document:
             if word in postings.keys():
                 postings[word].tfi += 1
@@ -45,39 +45,45 @@ class Indexer:
         for word in postings.keys():
             postings[word].tfi *= sigma
 
-    # def addTOGlobalMethod(self, Document):
-    #     """
-    #     This function are updating the global table
-    #     The function taking two words any time from list and calculate the colorization between them
-    #     :param Document: list of term (object term)
-    #     :return: void
-    #     """
-    #     Document = [word.text.lower() for word in Document]
-    #     for word_1 in Document:
-    #         if word_1 not in self.global_table.keys():
-    #             self.global_table[word_1] = {}
-    #         for word_2 in Document:
-    #             # if word_1 == word_2: continue
-    #             if word_2 not in self.global_table[word_1].keys():
-    #                 self.global_table[word_1][word_2] = 0
-    #             self.global_table[word_1][word_2] += 1
+    def addTOGlobalMethod(self, Document):
+        """
+        This function are updating the global table
+        The function taking two words any time from list and calculate the colorization between them
+        :param Document: list of term (object term)
+        :return: void
+        """
+        Document = [word.text.lower() for word in Document]
+        for word_1 in Document:
+            if word_1 not in self.global_table.keys():
+                self.global_table[word_1] = {}
+            for word_2 in Document:
+                # if word_1 == word_2: continue
+                if word_2 not in self.global_table[word_1].keys():
+                    self.global_table[word_1][word_2] = 0
+                self.global_table[word_1][word_2] += 1
     
-    # def Creat_and_load_global_table(self):
-    #     top_global = {}
-    #     for word_1 in self.global_table.keys():
-    #         top = []
-    #         for word_2 in self.global_table[word_1].keys():
-    #             s = self.global_table[word_1][word_2] / (
-    #                     self.global_table[word_1][word_1] + self.global_table[word_2][word_2] -
-    #                     self.global_table[word_1][word_2])
-    #             if len(top) < 10:
-    #                 top.append((word_2, s))
-    #                 top.sort(key=lambda score: score[1])
-    #             elif s > top[0][1]:
-    #                 top[0] = (word_2, s)
-    #                 top.sort(key=lambda score: score[1])
-    #         top_global[word_1] = top
-    #     utils.save_obj(top_global, 'global_table')
+    def Creat_and_load_global_table(self,first):
+        if first==False:
+            top_global=utils.load_obj('global_table')
+        else: top_global = {}
+
+        for word_1 in self.global_table.keys():
+            top = []
+            for word_2 in self.global_table[word_1].keys():
+                s = self.global_table[word_1][word_2] / (
+                        self.global_table[word_1][word_1] + self.global_table[word_2][word_2] -
+                        self.global_table[word_1][word_2])
+                if len(top) < 4:
+                    top.append((word_2, s))
+                    top.sort(key=lambda score: score[1])
+                elif s > top[0][1]:
+                    top[0] = (word_2, s)
+                    top.sort(key=lambda score: score[1])
+            top_global[word_1] = top
+
+        utils.save_obj(top_global, 'global_table')
+        self.global_table.clear()
+                                                    #TODO: add remove table after the save
 
     @staticmethod
     def CreatInvertedIndex(word_dict, idx):

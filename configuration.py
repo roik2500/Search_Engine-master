@@ -1,5 +1,5 @@
 config = {
-    'corpus_path': r'../Data',
+    'corpus_path': r'../Dataa',
     'output_path': '',
     'stemming': True,
     'queries': '',

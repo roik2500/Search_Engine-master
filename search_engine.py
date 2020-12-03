@@ -9,9 +9,10 @@ import os
 
 PostingFile = r'posting_dictionary.bin'
 InvertedIndexFile = r'inverted_idx'
+file_output = 'results.csv'
 
 
-def run_engine(corpus_path, stemming):
+def run_engine(corpus_path, stemming, outpath):
     """
     :return:
     """
