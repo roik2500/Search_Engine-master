@@ -43,7 +43,7 @@ def run_engine(corpus_path, stemming, outpath):
 
     # Iterate over every document in the file
     idx = 0
-    parquet_number = 1
+    #parquet_number = 1
     for documents_list in r:
         step = 1 / len(documents_list)
         for document in documents_list:
@@ -58,20 +58,18 @@ def run_engine(corpus_path, stemming, outpath):
                 m.Save(p.word_dict)
             r.progressbar.update(step)
 
-        #     if idx == parse_limit:
-        #         break
-        # if idx == parse_limit:
-        #     break
-        print('finish the parquet {}'.format(parquet_number))
-        if parquet_number == 1:
-            first = True
-        else:first = False
+            if idx == parse_limit:
+                break
+        if idx == parse_limit:
+            break
+        # if parquet_number == 1:
+        #     first = True
+        # else:first = False
 
-        start_time = time.time()
-        print('start to create and load the global method {}'.format(parquet_number))
-        indexer.Creat_and_load_global_table(first)
-        parquet_number+=1
-        print("--- %s seconds ---" % (time.time() - start_time))
+        # this code are creating the global table per parquet
+        #indexer.Creat_and_load_global_table(first)
+        #parquet_number+=1
+
         #if parquet == 2: break
 
     r.progressbar.close()
@@ -80,7 +78,8 @@ def run_engine(corpus_path, stemming, outpath):
 
 
     print('Creating Inverted Index')
-    inv_index = indexer.CreatInvertedIndex(p.word_dict, idx)
+    global_table = utils.load_obj('global_table')
+    inv_index = indexer.CreatInvertedIndex(p.word_dict, idx,global_table)
     print('Finished parsing and indexing. Starting to export files')
 
     print('start merge')
@@ -137,11 +136,10 @@ def main(corpus_path, output_path, stemming, queries, num_docs_to_retrieve):
     while rebuild_index.lower() not in ['', 'y', 'n']:
         print('Wrong Input')
         rebuild_index = input("Rebuild Index?[Y,n]")
-
     start_time = time.time()
     if rebuild_index == '' or rebuild_index.lower() == 'y':
         run_engine(corpus_path, stemming, output_path)
-    start_time = time.time()
+
     print("--- %s seconds ---" % (time.time() - start_time))
 
     start_time = time.time()
