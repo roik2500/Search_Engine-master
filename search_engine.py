@@ -80,11 +80,12 @@ def run_engine(corpus_path, stemming, outpath):
     print('load global_table')
     start_time = time.time()
     global_table = utils.load_obj('global_table')
-    print("global_table loading--- %s seconds ---" % (time.time() - start_time))
+    print("global_table loading--- %s seconds ---\n" % (time.time() - start_time))
+    print("The number of terms in global_table: {}\n".format(len(global_table)))
 
     print('Creating Inverted Index')
     inv_index = indexer.CreatInvertedIndex(p.word_dict, idx,global_table)
-    print("The number of terms: {}".format(len(inv_index)))
+    print("The number of terms: {}\n".format(len(inv_index)))
     print('Finished parsing and indexing. Starting to export files')
 
     print('start merge')
@@ -145,6 +146,7 @@ def main(corpus_path, output_path, stemming, queries, num_docs_to_retrieve):
     if rebuild_index == '' or rebuild_index.lower() == 'y':
         run_engine(corpus_path, stemming, output_path)
     print("run_engine--- %s seconds ---" % (time.time() - start_time))
+    print("stemming: {}\n".format(stemming))
 
     start_time = time.time()
     inverted_index = load_index()
