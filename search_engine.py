@@ -62,6 +62,8 @@ def run_engine(corpus_path, stemming, outpath):
                 break
         if idx == parse_limit:
             break
+
+        #this code for building the global method table
         # if parquet_number == 1:
         #     first = True
         # else:first = False
@@ -70,16 +72,19 @@ def run_engine(corpus_path, stemming, outpath):
         #indexer.Creat_and_load_global_table(first)
         #parquet_number+=1
 
-        #if parquet == 2: break
 
     r.progressbar.close()
     print('start to save the posting file')
     m.Save(p.word_dict)
 
+    print('load global_table')
+    start_time = time.time()
+    global_table = utils.load_obj('global_table')
+    print("global_table loading--- %s seconds ---" % (time.time() - start_time))
 
     print('Creating Inverted Index')
-    global_table = utils.load_obj('global_table')
     inv_index = indexer.CreatInvertedIndex(p.word_dict, idx,global_table)
+    print("The number of terms: {}".format(len(inv_index)))
     print('Finished parsing and indexing. Starting to export files')
 
     print('start merge')
@@ -139,8 +144,7 @@ def main(corpus_path, output_path, stemming, queries, num_docs_to_retrieve):
     start_time = time.time()
     if rebuild_index == '' or rebuild_index.lower() == 'y':
         run_engine(corpus_path, stemming, output_path)
-
-    print("--- %s seconds ---" % (time.time() - start_time))
+    print("run_engine--- %s seconds ---" % (time.time() - start_time))
 
     start_time = time.time()
     inverted_index = load_index()
