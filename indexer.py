@@ -4,10 +4,8 @@ from posting_by_term import PostingByTerm
 
 
 class Indexer:
-    # __slots__ = ['global_table']
-
     def __init__(self):
-        self.global_table = {}
+        #self.global_table = {}
         pass
 
     #@staticmethod
@@ -88,7 +86,7 @@ class Indexer:
     #     self.global_table.clear()
 
     @staticmethod
-    def CreatInvertedIndex(word_dict, idx,global_table):
+    def CreatInvertedIndex(word_dict, idx,global_table):#TODO: add a argument of global table
         #global_table = utils.load_obj('global_table')
         # key:str name value: start,size,idf_i=log(N/dfi)
         inverted_idx = {}

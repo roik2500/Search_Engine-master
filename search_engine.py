@@ -28,19 +28,6 @@ def run_engine(corpus_path, stemming, outpath):
     if os.path.exists(InvertedIndexFile + '.pkl'):
         os.remove(InvertedIndexFile + '.pkl')
 
-    parse_limit = -1
-
-    limit_input = input('Number of tweets to index(leave empty for entire corpus):')
-    while True:
-        if limit_input == '':
-            break
-        try:
-            parse_limit = int(limit_input)
-            break
-        except:
-            print('Wrong Input')
-            limit_input = input('Number of tweets to index(leave empty for entire corpus):')
-
     # Iterate over every document in the file
     idx = 0
     #parquet_number = 1
@@ -51,17 +38,12 @@ def run_engine(corpus_path, stemming, outpath):
 
             # index the document data
             indexer.add_new_doc(parsed_list, idx, document[0])
-            print(idx)
             idx += 1
 
             if idx % max_posting_size == 0:
                 m.Save(p.word_dict)
             r.progressbar.update(step)
 
-            if idx == parse_limit:
-                break
-        if idx == parse_limit:
-            break
 
         #this code for building the global method table
         # if parquet_number == 1:
@@ -70,27 +52,19 @@ def run_engine(corpus_path, stemming, outpath):
 
         # this code are creating the global table per parquet
         #indexer.Creat_and_load_global_table(first)
-        #parquet_number+=1
+        #parquet_number += 1
 
 
     r.progressbar.close()
-    print('start to save the posting file')
     m.Save(p.word_dict)
 
-    print('load global_table')
-    start_time = time.time()
-    global_table = utils.load_obj('global_table')
-    print("global_table loading--- %s seconds ---\n" % (time.time() - start_time))
-    print("The number of terms in global_table: {}\n".format(len(global_table)))
+    if stemming==True:
+        global_table = utils.load_obj('global_table_withStemming')
+    else:
+        global_table = utils.load_obj('global_table_noStwmming')
 
-    print('Creating Inverted Index')
     inv_index = indexer.CreatInvertedIndex(p.word_dict, idx,global_table)
-    print("The number of terms: {}\n".format(len(inv_index)))
-    print('Finished parsing and indexing. Starting to export files')
-
-    print('start merge')
     m.Merge(inv_index)
-    print('end merge')
     utils.save_obj(inv_index, InvertedIndexFile)
 
 
@@ -113,55 +87,23 @@ def load_index():
 def search_and_rank_query(query, inverted_index, k, stemming):
     p = Parse(stemming)
 
-    # start_time = time.time()
     query_as_list = [term.text.lower() for term in p.parse_sentence(query)]
-    # print("query parse --- %s seconds ---" % (time.time() - start_time))
 
-    # query_as_list = p.parse_sentence(query)
     searcher = Searcher(inverted_index, PostingFile)
 
-    # start_time = time.time()
     w_of_term_in_query = searcher.CalculateW(query_as_list)
-    # print("Calculate query W --- %s seconds ---" % (time.time() - start_time))
 
-    # start_time = time.time()
     relevant_docs = searcher.relevant_docs_from_posting(list(w_of_term_in_query.keys()))
-    # print("relevant docs --- %s seconds ---" % (time.time() - start_time))
 
-    # start_time = time.time()
     ranked_docs = searcher.ranker.rank_relevant_doc(relevant_docs, w_of_term_in_query)
     output = searcher.ranker.retrieve_top_k(ranked_docs, k)
-    # print("rank docs --- %s seconds ---" % (time.time() - start_time))
     return output
 
 
 def main(corpus_path, output_path, stemming, queries, num_docs_to_retrieve):
-    #a=utils.load_obj('global_table')
-    print("<------------- COVID Tweet Searcher ------------->")
-    rebuild_index = input("Rebuild Index?[Y,n]")
-    while rebuild_index.lower() not in ['', 'y', 'n']:
-        print('Wrong Input')
-        rebuild_index = input("Rebuild Index?[Y,n]")
-    start_time = time.time()
-    if rebuild_index == '' or rebuild_index.lower() == 'y':
-        run_engine(corpus_path, stemming, output_path)
-    print("run_engine--- %s seconds ---" % (time.time() - start_time))
-    print("stemming: {}\n".format(stemming))
-
-    start_time = time.time()
+    run_engine(corpus_path, stemming, output_path)
     inverted_index = load_index()
-    print("inverted index load --- %s seconds ---" % (time.time() - start_time))
 
-    # output_file = open(output_path, 'w')
-    # if queries == '':
-    #     while True:
-    #         q = input("query: ")
-    #         for doc_tuple in search_and_rank_query(q, inverted_index, num_docs_to_retrieve, stemming):
-    #             if output_file:
-    #                 output_file.write('tweet id: {}, score : {}\n'.format(doc_tuple[0], doc_tuple[1]))
-    #             else:
-    #                 print('tweet id: {}, score : {}'.format(doc_tuple[0], doc_tuple[1]))
-    # else:
     if not isinstance(queries, list):
         queries = ReadQueryFromFile(queries)
     file = open(file_output, 'w', newline='')
@@ -170,7 +112,7 @@ def main(corpus_path, output_path, stemming, queries, num_docs_to_retrieve):
         print(q)  # TODO: remove
         for doc_tuple in search_and_rank_query(q, inverted_index, num_docs_to_retrieve, stemming):
             csv.writer(file).writerow(["{:f}".format(doc_tuple[0]),"{:f}".format(doc_tuple[1])])
-            print('tweet id: {}, score : {}'.format(doc_tuple[0], doc_tuple[1]))
+            print('tweet id: {}, score : {}'.format(doc_tuple[0], doc_tuple[1]))#TODO: remove
     file.close()
 
 

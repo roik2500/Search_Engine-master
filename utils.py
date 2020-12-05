@@ -23,5 +23,5 @@ def load_obj(name):
 
 def load_inverted_index():
     print('Load inverted index')
-    inverted_index = load_obj('InvertedIndexFile.pkl')
+    inverted_index = load_obj('inverted_idx')
     return inverted_index

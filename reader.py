@@ -29,7 +29,7 @@ class ReadFile:
         for root, dirs, files in os.walk(self.corpus_path):
             for name in files:
                 if name.endswith(".parquet"):
-                    self.file_list.append(os.path.join(root, name))
+                    self.file_list.append(os.path.join(root, name).lstrip(self.corpus_path+'\\'))
         self.file_list.sort()
         self.progressbar = tqdm(total=len(self.file_list))
         self.n = 0
