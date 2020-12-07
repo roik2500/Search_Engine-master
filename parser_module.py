@@ -108,12 +108,12 @@ class Parse:
             if self.isNumber(word):
                 try:
                     if i + 1 < size and word_list[i + 1].lower() in [self.stemmer.stem_term('percent'),
-                                                                    self.stemmer.stem_term('percentage')]:
+                                                                     self.stemmer.stem_term('percentage')]:
                         i += 1
                         word += '%'
 
                     elif i + 1 < size and word_list[i + 1].lower() in [self.stemmer.stem_term('dollar'),
-                                                                    self.stemmer.stem_term('dollars')]:
+                                                                       self.stemmer.stem_term('dollars')]:
                         i += 1
                         word += '$'
 
@@ -156,9 +156,10 @@ class Parse:
             return None
         if low_case in self.word_dict.keys():
             self.word_dict[low_case].numOfInterfaces += 1
-            if word == low_case:
+            if not word[0].isupper():
                 self.word_dict[low_case].text = low_case
         else:
+            word = word.upper() if word[0].isupper() else word.lower()
             self.word_dict[low_case] = Term(word)
         return self.word_dict[low_case]
 
@@ -178,13 +179,17 @@ class Parse:
     # #stayAtHome--->['#stayAtHome', 'stay', 'At',Home]
     @staticmethod
     def hashtag(term):
-        res = [term]
+        res = [term.lower()]
         start = 1
         for i in range(2, len(term)):
             if term[i].isupper():
-                res.append(term[start:i])
+                res.append(term[start:i].lower())
                 start = i
-        res.append(term[start:])
+            elif term[i] == '_':
+                res.append(term[start:i].lower())
+                i += 1
+                start = i
+        res.append(term[start:].lower())
         return res
 
     @staticmethod

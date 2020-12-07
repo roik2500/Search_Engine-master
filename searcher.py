@@ -26,9 +26,9 @@ class Searcher:
                 else:
                     output[word] = 1
                 max_term = max(max_term, output[word])
-                a=self.inverted_index[word][2][-4:]
                 for extended_word, extended_grade in self.inverted_index[word][2][-4:]:
-                    if extended_word not in self.inverted_index.keys():continue
+                    if extended_word not in self.inverted_index.keys():
+                        continue
                     if extended_word in output.keys():
                         output[extended_word] += extended_grade
                     else:

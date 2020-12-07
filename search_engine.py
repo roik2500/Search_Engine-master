@@ -1,5 +1,4 @@
 import csv
-import time
 from memory_posting_binary import BinaryMemoryPosting
 from reader import ReadFile
 from parser_module import Parse
@@ -13,24 +12,25 @@ InvertedIndexFile = r'inverted_idx'
 file_output = 'results.csv'
 
 
-def run_engine(corpus_path, stemming, outpath):
+def run_engine(corpus_path, stemming, output_path):
     """
     :return:
     """
     r = ReadFile(corpus_path)
     p = Parse(stemming)
-    m = BinaryMemoryPosting(PostingFile)
+    m = BinaryMemoryPosting(os.path.join(output_path, PostingFile))
     indexer = Indexer()
     max_posting_size = 100000
 
-    if os.path.exists(PostingFile):
-        os.remove(PostingFile)
+    if os.path.exists(os.path.join(output_path, PostingFile)):
+        os.remove(os.path.join(output_path, PostingFile))
     if os.path.exists(InvertedIndexFile + '.pkl'):
         os.remove(InvertedIndexFile + '.pkl')
+    if not os.path.exists(output_path):
+        os.mkdir(output_path)
 
     # Iterate over every document in the file
     idx = 0
-    #parquet_number = 1
     for documents_list in r:
         step = 1 / len(documents_list)
         for document in documents_list:
@@ -44,31 +44,17 @@ def run_engine(corpus_path, stemming, outpath):
                 m.Save(p.word_dict)
             r.progressbar.update(step)
 
-
-        #this code for building the global method table
-        # if parquet_number == 1:
-        #     first = True
-        # else:first = False
-
-        # this code are creating the global table per parquet
-        #indexer.Creat_and_load_global_table(first)
-        #parquet_number += 1
-
-
     r.progressbar.close()
     m.Save(p.word_dict)
 
-    if stemming==True:
-        global_table = utils.load_obj('global_table_withStemming')
-    else:
-        global_table = utils.load_obj('global_table_noStwmming')
+    global_table = utils.load_obj(f'global_table_{stemming}')
 
-    inv_index = indexer.CreatInvertedIndex(p.word_dict, idx,global_table)
+    inv_index = indexer.CreatInvertedIndex(p.word_dict, idx, global_table)
     m.Merge(inv_index)
     utils.save_obj(inv_index, InvertedIndexFile)
 
 
-# This function for update the doc,addingv the entity that appears at least in tow doc in all the corpus
+# This function for update the doc,adding the entity that appears at least in tow doc in all the corpus
 def updateDocByEntity(doc, list_of_entity):
     for term in list_of_entity:  # tf
         if term not in doc.term_dict.keys():
@@ -84,12 +70,12 @@ def load_index():
     return inverted_index
 
 
-def search_and_rank_query(query, inverted_index, k, stemming):
+def search_and_rank_query(query, inverted_index, k, stemming, output_path):
     p = Parse(stemming)
 
     query_as_list = [term.text.lower() for term in p.parse_sentence(query)]
 
-    searcher = Searcher(inverted_index, PostingFile)
+    searcher = Searcher(inverted_index, os.path.join(output_path, PostingFile))
 
     w_of_term_in_query = searcher.CalculateW(query_as_list)
 
@@ -109,10 +95,8 @@ def main(corpus_path, output_path, stemming, queries, num_docs_to_retrieve):
     file = open(file_output, 'w', newline='')
     csv.writer(file).writerow(["tweetID", "score"])
     for q in queries:
-        print(q)  # TODO: remove
-        for doc_tuple in search_and_rank_query(q, inverted_index, num_docs_to_retrieve, stemming):
-            csv.writer(file).writerow(["{:f}".format(doc_tuple[0]),"{:f}".format(doc_tuple[1])])
-            print('tweet id: {}, score : {}'.format(doc_tuple[0], doc_tuple[1]))#TODO: remove
+        for doc_tuple in search_and_rank_query(q, inverted_index, num_docs_to_retrieve, stemming, output_path):
+            csv.writer(file).writerow(["{:f}".format(doc_tuple[0]), "{:f}".format(doc_tuple[1])])
     file.close()
 
 
